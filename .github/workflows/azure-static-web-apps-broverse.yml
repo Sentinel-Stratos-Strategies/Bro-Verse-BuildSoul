@@ -26,6 +26,8 @@ jobs:
           app_location: "frontend"
           api_location: ""
           output_location: "dist"
+        env:
+          VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
