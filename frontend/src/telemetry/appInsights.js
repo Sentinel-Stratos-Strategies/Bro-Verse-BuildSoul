@@ -26,6 +26,7 @@ export const initializeAppInsights = () => {
 
   appInsights.loadAppInsights()
   appInsights.trackPageView()
+  appInsights.trackEvent({ name: 'app_start' })
 
   return appInsights
 }
