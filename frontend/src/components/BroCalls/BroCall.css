@@ -1,0 +1,105 @@
+.bro-call {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #e94560;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(233, 69, 96, 0.3);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bro-call.visible {
+  opacity: 1;
+}
+
+.bro-call-content {
+  color: #fff;
+}
+
+.bro-call-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.bro-call-character {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #e94560;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bro-call-timer {
+  background: #e94560;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.bro-call-message {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  font-style: italic;
+}
+
+.bro-call-footer {
+  text-align: center;
+}
+
+.bro-call-warning {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bro-call-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+}
+
+.bro-call-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #e94560, #ff6b6b);
+  width: 100%;
+  animation: shrink linear forwards;
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Overlay background */
+.bro-call::before {
+  content: '';
+  position: fixed;
+  top: -50vh;
+  left: -50vw;
+  width: 200vw;
+  height: 200vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: -1;
+}

@@ -1,0 +1,104 @@
+{
+  "messages": [
+    {
+      "id": 1,
+      "text": "You can't heal what you're hiding from. Take one step forward today.",
+      "type": "reflective"
+    },
+    {
+      "id": 2,
+      "text": "You don't need permission to become who you already are.",
+      "type": "constructive"
+    },
+    {
+      "id": 3,
+      "text": "You're not your father's mistakes. But you're his legacy. Build it better.",
+      "type": "constructive"
+    },
+    {
+      "id": 4,
+      "text": "Reach out to the man you ghosted.",
+      "type": "reflective"
+    },
+    {
+      "id": 5,
+      "text": "Apologize today—before the chance dies.",
+      "type": "confrontational"
+    },
+    {
+      "id": 6,
+      "text": "You're acting like a bitch. Get up.",
+      "type": "confrontational"
+    },
+    {
+      "id": 7,
+      "text": "Stop planning. Start doing. The universe rewards motion.",
+      "type": "constructive"
+    },
+    {
+      "id": 8,
+      "text": "The man you want to be is watching. What does he see?",
+      "type": "reflective"
+    },
+    {
+      "id": 9,
+      "text": "Comfort is the enemy of growth. Choose discomfort today.",
+      "type": "confrontational"
+    },
+    {
+      "id": 10,
+      "text": "Your word is your bond. Did you keep yours today?",
+      "type": "reflective"
+    },
+    {
+      "id": 11,
+      "text": "Three moves ahead. What's your next move?",
+      "type": "constructive"
+    },
+    {
+      "id": 12,
+      "text": "The grind doesn't care about your feelings. Show up anyway.",
+      "type": "confrontational"
+    },
+    {
+      "id": 13,
+      "text": "Who did you help today? That's your real legacy.",
+      "type": "reflective"
+    },
+    {
+      "id": 14,
+      "text": "Fear is a compass. It points to where you need to go.",
+      "type": "constructive"
+    },
+    {
+      "id": 15,
+      "text": "Call your mother. Or the person who raised you right.",
+      "type": "reflective"
+    },
+    {
+      "id": 16,
+      "text": "You're not broken. You're under construction. Keep building.",
+      "type": "constructive"
+    },
+    {
+      "id": 17,
+      "text": "Excuses or results. Pick one.",
+      "type": "confrontational"
+    },
+    {
+      "id": 18,
+      "text": "The world doesn't need another perfect man. It needs you—real.",
+      "type": "constructive"
+    },
+    {
+      "id": 19,
+      "text": "What would the man you want to be do right now? Do that.",
+      "type": "reflective"
+    },
+    {
+      "id": 20,
+      "text": "Still standing. Still swinging. That's all that matters.",
+      "type": "constructive"
+    }
+  ]
+}
