@@ -1,0 +1,14 @@
+version: 2
+
+updates:
+  # Keep npm dependencies (package.json) up to date
+  - package-ecosystem: "npm"
+    directory: "/"          # root where your package.json lives
+    schedule:
+      interval: "weekly"    # or "daily", "monthly"
+
+  # Keep GitHub Actions used in workflows up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"          # workflows are in .github/workflows
+    schedule:
+      interval: "weekly"
