@@ -1,6 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { HomePage, DashboardPage } from './pages'
 import { UserProfile } from './components/UserProfile'
+import { HealthCheck } from './components/HealthCheck'
+import { tracer } from './telemetry'
 import './App.css'
 
 /**
@@ -9,33 +12,63 @@ import './App.css'
  */
 function AppContent() {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Track page views on location change
+  useEffect(() => {
+    const pageName = location.pathname === '/' ? 'Home' 
+      : location.pathname === '/dashboard' ? 'Dashboard'
+      : location.pathname === '/profile' ? 'Profile'
+      : 'Unknown'
+    
+    tracer.trackPageView(pageName, location.pathname)
+    console.log(`Navigated to: ${pageName} (${location.pathname})`)
+  }, [location])
 
   const handleNavigate = (page) => {
+    const from = location.pathname
+    let to = '/'
+    
     switch(page) {
       case 'home':
-        navigate('/')
+        to = '/'
         break
       case 'dashboard':
-        navigate('/dashboard')
+        to = '/dashboard'
         break
       case 'profile':
-        navigate('/profile')
+        to = '/profile'
         break
       default:
-        navigate('/')
+        to = '/'
     }
+    
+    tracer.trackNavigation(from, to, { trigger: 'programmatic' })
+    navigate(to)
   }
 
   return (
     <div className="broverse-app">
       <nav className="app-nav">
-        <div className="nav-brand" onClick={() => navigate('/')}>
+        <div className="nav-brand" onClick={() => {
+          tracer.trackUserAction('click', 'nav-brand', { destination: '/' })
+          navigate('/')
+        }}>
           BROVERSE
         </div>
         <div className="nav-links">
-          <button onClick={() => navigate('/')}>Home</button>
-          <button onClick={() => navigate('/dashboard')}>Dashboard</button>
-          <button onClick={() => navigate('/profile')}>Profile</button>
+          <button onClick={() => {
+            tracer.trackUserAction('click', 'nav-home')
+            navigate('/')
+          }}>Home</button>
+          <button onClick={() => {
+            tracer.trackUserAction('click', 'nav-dashboard')
+            navigate('/dashboard')
+          }}>Dashboard</button>
+          <button onClick={() => {
+            tracer.trackUserAction('click', 'nav-profile')
+            navigate('/profile')
+          }}>Profile</button>
         </div>
       </nav>
 
@@ -58,6 +91,7 @@ function App() {
   return (
     <Router>
       <AppContent />
+      {import.meta.env.DEV && <HealthCheck />}
     </Router>
   )
 }

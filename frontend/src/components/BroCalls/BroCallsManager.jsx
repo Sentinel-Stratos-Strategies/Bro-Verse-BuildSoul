@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import BroCall from './BroCall';
+import { tracer } from '../../telemetry';
 import broCallMessages from '../../data/broCallMessages.json';
 
 // Generate random duration between 7-10 seconds
@@ -46,6 +47,13 @@ export function BroCallsManager({ userRoster = [], enabled = true }) {
     const duration = generateDuration();
 
     if (message) {
+      console.log(`BroCall triggered: ${character?.name} - ${duration}s`);
+      tracer.trackBroCall('triggered', character, {
+        messageType: message.type,
+        duration,
+        callsRemaining: CALLS_PER_WEEK - callsThisWeek - 1
+      });
+      
       setCurrentCall({ message: message.text, character, type: message.type, duration });
       setCallsThisWeek(prev => prev + 1);
       setLastCallTime(new Date());
@@ -54,6 +62,12 @@ export function BroCallsManager({ userRoster = [], enabled = true }) {
 
   // Dismiss the current call
   const dismissCall = () => {
+    if (currentCall) {
+      tracer.trackBroCall('dismissed', currentCall.character, {
+        messageType: currentCall.type
+      });
+      console.log(`BroCall dismissed: ${currentCall.character?.name}`);
+    }
     setCurrentCall(null);
   };
 
