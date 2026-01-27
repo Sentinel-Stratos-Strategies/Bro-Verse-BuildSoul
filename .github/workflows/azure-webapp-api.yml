@@ -30,7 +30,7 @@ jobs:
               run: zip -r ../broverse-api.zip . -x "node_modules/*" ".env"
 
             - name: Deploy to Azure Web App
-              uses: azure/webapps-deploy@a746efd78a61de7481e3cb7b9a2f986fdfe97180
+              uses: azure/webapps-deploy@v3
               with:
                   app-name: broverse-api-20260127
                   publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
