@@ -122,8 +122,8 @@ if [ ! -f "terraform.tfvars" ]; then
 else
     print_success "terraform.tfvars found"
     
-    # Check for security issues in tfvars
-    if grep -q 'allowed_ip_range.*=.*"\*"' terraform.tfvars 2>/dev/null; then
+    # Check for security issues in tfvars (escape the asterisk in regex)
+    if grep -q 'allowed_ip_range.*=.*"\*"' terraform.tfvars 2>/dev/null || grep -q "allowed_ip_range.*=.*'\*'" terraform.tfvars 2>/dev/null; then
         print_warning "SECURITY WARNING: allowed_ip_range is set to '*' (all IPs)"
         print_info "This allows RDP access from anywhere. Consider restricting to your IP."
     fi
