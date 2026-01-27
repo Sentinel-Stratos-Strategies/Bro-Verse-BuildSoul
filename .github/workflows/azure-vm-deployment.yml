@@ -95,16 +95,18 @@ jobs:
       - name: Start VM
         if: github.event.inputs.action == 'start-vm'
         run: |
-          az vm start \
-            --resource-group forensics-axiom-rg \
-            --name axiom-forensics-vm
+          # Get resource group and VM name from Terraform outputs or use defaults
+          RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "forensics-axiom-rg")
+          VM_NAME=$(terraform output -raw vm_name 2>/dev/null || echo "axiom-forensics-vm")
+          az vm start --resource-group "$RG_NAME" --name "$VM_NAME"
       
       - name: Stop VM
         if: github.event.inputs.action == 'stop-vm'
         run: |
-          az vm deallocate \
-            --resource-group forensics-axiom-rg \
-            --name axiom-forensics-vm
+          # Get resource group and VM name from Terraform outputs or use defaults
+          RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "forensics-axiom-rg")
+          VM_NAME=$(terraform output -raw vm_name 2>/dev/null || echo "axiom-forensics-vm")
+          az vm deallocate --resource-group "$RG_NAME" --name "$VM_NAME"
       
       - name: Upload Terraform Plan
         if: github.event.inputs.action == 'plan'

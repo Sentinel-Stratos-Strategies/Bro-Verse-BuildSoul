@@ -5,7 +5,7 @@
 # Storage: 1 TB + 100 GB storage bucket
 
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.0, < 2.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
