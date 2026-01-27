@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CharacterChat } from '../components/LLM';
 import { BroCallsManager } from '../components/BroCalls';
 import './DashboardPage.css';
@@ -7,11 +7,27 @@ import './DashboardPage.css';
 function getInitialDashboardState() {
   const storedRoster = localStorage.getItem('broverse_roster');
   const storedExpiry = localStorage.getItem('broverse_roster_expiry');
-  
+
   return {
     roster: storedRoster ? JSON.parse(storedRoster) : null,
     rosterExpiry: storedExpiry ? new Date(storedExpiry) : null
   };
+}
+
+function getBroCallsRemaining() {
+  const rawSchedule = localStorage.getItem('broverse_bro_calls_schedule');
+  if (!rawSchedule) return 3;
+
+  try {
+    const schedule = JSON.parse(rawSchedule);
+    const now = new Date();
+    return schedule.filter((entry) => {
+      if (entry.status !== 'scheduled') return false;
+      return new Date(entry.scheduledAt) > now;
+    }).length;
+  } catch {
+    return 3;
+  }
 }
 
 /**
@@ -24,6 +40,7 @@ export function DashboardPage({ onNavigate }) {
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [rosterExpiry] = useState(initialState.rosterExpiry);
+  const [broCallsRemaining, setBroCallsRemaining] = useState(getBroCallsRemaining());
 
   const getDaysRemaining = () => {
     if (!rosterExpiry) return 0;
@@ -31,6 +48,16 @@ export function DashboardPage({ onNavigate }) {
     const diff = rosterExpiry - now;
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   };
+
+  const refreshBroCallsRemaining = () => {
+    setBroCallsRemaining(getBroCallsRemaining());
+  };
+
+  useEffect(() => {
+    refreshBroCallsRemaining();
+    const interval = setInterval(refreshBroCallsRemaining, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCharacterClick = (character) => {
     setSelectedCharacter(character);
@@ -47,7 +74,7 @@ export function DashboardPage({ onNavigate }) {
       <div className="dashboard-empty">
         <h2>No Roster Selected</h2>
         <p>You haven't built your roster yet. Choose your 4 + 1 to get started.</p>
-        <button 
+        <button
           className="cta-button"
           onClick={() => onNavigate?.('home')}
         >
@@ -59,9 +86,9 @@ export function DashboardPage({ onNavigate }) {
 
   return (
     <div className="dashboard-page">
-      <BroCallsManager 
-        userRoster={getAllRosterCharacters()} 
-        enabled={true} 
+      <BroCallsManager
+        userRoster={getAllRosterCharacters()}
+        enabled={true}
       />
 
       <div className="dashboard-header">
@@ -75,10 +102,10 @@ export function DashboardPage({ onNavigate }) {
         <section className="roster-section">
           <h2>Your Roster</h2>
           <p className="section-subtitle">Click a character to chat</p>
-          
+
           <div className="roster-grid">
             {roster.prebuilt?.map(character => (
-              <div 
+              <div
                 key={character.id}
                 className="roster-card"
                 onClick={() => handleCharacterClick(character)}
@@ -88,9 +115,9 @@ export function DashboardPage({ onNavigate }) {
                 <p className="roster-tagline">{character.tagline}</p>
               </div>
             ))}
-            
+
             {roster.alphaBro && (
-              <div 
+              <div
                 className="roster-card alpha-card"
                 onClick={() => handleCharacterClick(roster.alphaBro)}
               >
@@ -106,7 +133,7 @@ export function DashboardPage({ onNavigate }) {
           <h2>This Week</h2>
           <div className="week-stats">
             <div className="stat-item">
-              <span className="stat-number">3</span>
+              <span className="stat-number">{broCallsRemaining}</span>
               <span className="stat-label">Bro Calls Coming</span>
             </div>
             <div className="stat-item">
@@ -124,6 +151,7 @@ export function DashboardPage({ onNavigate }) {
             onClose={() => {
               setShowChat(false);
               setSelectedCharacter(null);
+              refreshBroCallsRemaining();
             }}
           />
         </div>

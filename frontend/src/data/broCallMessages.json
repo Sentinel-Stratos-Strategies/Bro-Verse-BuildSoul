@@ -3,7 +3,9 @@
     {
       "id": 1,
       "text": "You can't heal what you're hiding from. Take one step forward today.",
-      "type": "reflective"
+      "type": "reflective",
+      "mediaUrl": "/brocalls/IMG_1219.mov",
+      "mediaType": "video"
     },
     {
       "id": 2,

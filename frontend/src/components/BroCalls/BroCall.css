@@ -7,7 +7,7 @@
   border: 2px solid #e94560;
   border-radius: 16px;
   padding: 24px;
-  max-width: 400px;
+  max-width: 440px;
   width: 90%;
   box-shadow: 0 20px 60px rgba(233, 69, 96, 0.3);
   z-index: 10000;
@@ -21,6 +21,64 @@
 
 .bro-call-content {
   color: #fff;
+}
+
+.bro-call-incoming {
+  color: #fff;
+  text-align: center;
+}
+
+.bro-call-badge {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffd166;
+  margin-bottom: 12px;
+}
+
+.bro-call-video {
+  background: #0b0f1a;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.bro-call-video-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bro-call-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e94560;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.bro-call-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.bro-call-subtitle {
+  font-size: 0.85rem;
+  color: #98a2b3;
+}
+
+.bro-call-ring-timer {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffd166;
+  margin-bottom: 16px;
 }
 
 .bro-call-header {
@@ -54,6 +112,22 @@
   font-style: italic;
 }
 
+.bro-call-media {
+  margin-bottom: 16px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0b0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.bro-call-media-video {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
 .bro-call-footer {
   text-align: center;
 }
@@ -63,6 +137,43 @@
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.bro-call-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0 10px;
+}
+
+.bro-call-actions.connected {
+  margin-top: 20px;
+}
+
+.bro-call-btn {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bro-call-btn.answer {
+  background: #2ecc71;
+  color: #0b0f1a;
+  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+}
+
+.bro-call-btn.decline,
+.bro-call-btn.hangup {
+  background: #e94560;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+}
+
+.bro-call-btn:hover {
+  transform: translateY(-2px);
 }
 
 .bro-call-progress {
@@ -87,6 +198,7 @@
   from {
     width: 100%;
   }
+
   to {
     width: 0%;
   }
@@ -102,4 +214,9 @@
   height: 200vh;
   background: rgba(0, 0, 0, 0.8);
   z-index: -1;
+}
+
+.bro-call.ringing {
+  border-color: #ffd166;
+  box-shadow: 0 20px 60px rgba(255, 209, 102, 0.25);
 }

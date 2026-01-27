@@ -1,0 +1,37 @@
+name: BroVerse API - Azure Web App
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "backend/**"
+            - ".github/workflows/azure-webapp-api.yml"
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+            - name: Setup Node
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              working-directory: backend
+              run: npm ci
+
+            - name: Build deploy package
+              working-directory: backend
+              run: zip -r ../broverse-api.zip . -x "node_modules/*" ".env"
+
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@a746efd78a61de7481e3cb7b9a2f986fdfe97180
+              with:
+                  app-name: broverse-api-20260127
+                  publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+                  package: broverse-api.zip

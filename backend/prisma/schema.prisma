@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  passwordHash    String
+  displayName     String
+  tagline         String?
+  avatarUrl       String?
+  bio             String?
+  role            String   @default("user")
+  isVerified      Boolean  @default(false)
+  isBanned        Boolean  @default(false)
+  reputationScore Int      @default(0)
+  lastLoginAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  posts           Post[]
+  comments        Comment[]
+  reactions       Reaction[]
+  relationshipsRequested Relationship[] @relation("relationshipRequester")
+  relationshipsReceived  Relationship[] @relation("relationshipAddressee")
+}
+
+model Relationship {
+  id           String   @id @default(uuid())
+  requesterId  String
+  addresseeId  String
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+
+  requester User @relation("relationshipRequester", fields: [requesterId], references: [id])
+  addressee User @relation("relationshipAddressee", fields: [addresseeId], references: [id])
+
+  @@index([requesterId])
+  @@index([addresseeId])
+}
+
+model Post {
+  id         String   @id @default(uuid())
+  authorId   String
+  visibility String   @default("public")
+  type       String   @default("reflection")
+  content    String
+  mediaUrl   String?
+  challengeId String?
+  isDeleted  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  reactions Reaction[]
+
+  @@index([authorId, createdAt])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  parentId  String?
+  content   String
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post  @relation(fields: [postId], references: [id])
+  author User  @relation(fields: [authorId], references: [id])
+  parent Comment? @relation("CommentThread", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentThread")
+
+  @@index([postId, createdAt])
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  type      String   @default("like")
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId, type])
+}

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import { HomePage, DashboardPage } from './pages'
+import { HomePage, DashboardPage, BoardPage } from './pages'
 import { UserProfile } from './components/UserProfile'
 import './App.css'
 
@@ -11,7 +11,7 @@ function AppContent() {
   const navigate = useNavigate()
 
   const handleNavigate = (page) => {
-    switch(page) {
+    switch (page) {
       case 'home':
         navigate('/')
         break
@@ -20,6 +20,9 @@ function AppContent() {
         break
       case 'profile':
         navigate('/profile')
+        break
+      case 'board':
+        navigate('/board')
         break
       default:
         navigate('/')
@@ -35,6 +38,7 @@ function AppContent() {
         <div className="nav-links">
           <button onClick={() => navigate('/')}>Home</button>
           <button onClick={() => navigate('/dashboard')}>Dashboard</button>
+          <button onClick={() => navigate('/board')}>Board</button>
           <button onClick={() => navigate('/profile')}>Profile</button>
         </div>
       </nav>
@@ -43,6 +47,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
           <Route path="/dashboard" element={<DashboardPage onNavigate={handleNavigate} />} />
+          <Route path="/board" element={<BoardPage />} />
           <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </main>
