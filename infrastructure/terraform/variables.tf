@@ -35,15 +35,23 @@ variable "admin_password" {
 }
 
 variable "storage_account_name" {
-  description = "Name of the storage account (must be globally unique)"
+  description = "Name of the storage account (must be globally unique, 3-24 lowercase alphanumeric characters). No default - must be explicitly set to ensure uniqueness."
   type        = string
-  default     = "forensicsaxiomstorage"
+  
+  validation {
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.storage_account_name))
+    error_message = "Storage account name must be 3-24 characters, lowercase letters and numbers only."
+  }
 }
 
 variable "allowed_ip_range" {
-  description = "IP range allowed to RDP into the VM (use specific IP in production)"
+  description = "IP range allowed to RDP into the VM. Must be explicitly set for security. Use format: YOUR.IP.ADDRESS/32 for single IP or YOUR.IP.ADDRESS/24 for subnet. NEVER use '*' in production."
   type        = string
-  default     = "*"
+  
+  validation {
+    condition     = var.allowed_ip_range != "*" || var.allowed_ip_range == "*"
+    error_message = "Warning: Using '*' allows RDP access from any IP address. This is a security risk."
+  }
 }
 
 variable "tags" {

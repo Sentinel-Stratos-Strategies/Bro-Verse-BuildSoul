@@ -60,7 +60,12 @@ fi
 # Check for Terraform
 if command -v terraform &> /dev/null; then
     print_success "Terraform is installed"
-    TF_VERSION=$(terraform version -json | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4)
+    # Use jq if available for robust JSON parsing, otherwise fall back to grep/cut
+    if command -v jq &> /dev/null; then
+        TF_VERSION=$(terraform version -json 2>/dev/null | jq -r '.terraform_version' 2>/dev/null || terraform version | head -1 | cut -d'v' -f2 | cut -d' ' -f1)
+    else
+        TF_VERSION=$(terraform version -json 2>/dev/null | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4 2>/dev/null || terraform version | head -1 | cut -d'v' -f2 | cut -d' ' -f1)
+    fi
     print_info "Terraform version: $TF_VERSION"
 else
     print_error "Terraform is not installed"
@@ -101,10 +106,12 @@ if [ ! -f "terraform.tfvars" ]; then
     
     if [ -f "terraform.tfvars.example" ]; then
         cp terraform.tfvars.example terraform.tfvars
-        print_warning "Please edit terraform.tfvars and set required values:"
-        print_info "  - admin_password: Set a strong password"
-        print_info "  - allowed_ip_range: Set your IP for RDP access"
-        print_info "  - storage_account_name: Must be globally unique"
+        print_warning "IMPORTANT: Edit terraform.tfvars and set REQUIRED values:"
+        print_info "  - admin_password: Set a strong password (12+ chars)"
+        print_info "  - storage_account_name: Must be globally unique (3-24 lowercase alphanumeric)"
+        print_info "  - allowed_ip_range: MUST set your IP for security (use 'curl https://api.ipify.org' to find it)"
+        echo ""
+        print_warning "SECURITY WARNING: Do NOT use '*' for allowed_ip_range in production!"
         
         if [ "$CI_MODE" = false ]; then
             read -p "Press Enter after editing terraform.tfvars..."
@@ -118,6 +125,12 @@ if [ ! -f "terraform.tfvars" ]; then
     fi
 else
     print_success "terraform.tfvars found"
+    
+    # Check for security issues in tfvars
+    if grep -q 'allowed_ip_range.*=.*"\*"' terraform.tfvars 2>/dev/null; then
+        print_warning "SECURITY WARNING: allowed_ip_range is set to '*' (all IPs)"
+        print_info "This allows RDP access from anywhere. Consider restricting to your IP."
+    fi
 fi
 
 # Deployment options

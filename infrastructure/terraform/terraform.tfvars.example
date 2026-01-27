@@ -1,8 +1,17 @@
 # Example Terraform variables file
 # Copy this file to terraform.tfvars and fill in the values
 
-# Required: Set a strong admin password
-# admin_password = "YourStrongPassword123!"
+# REQUIRED: Set a strong admin password (min 12 characters with uppercase, lowercase, numbers, special chars)
+admin_password = "YourStrongPassword123!"
+
+# REQUIRED: Storage account name must be globally unique (3-24 lowercase alphanumeric characters)
+# Suggestion: Use your initials + random numbers, e.g., "jdoeforensics2024"
+storage_account_name = "youruniqueforensicsname"
+
+# REQUIRED: Restrict RDP access to your specific IP address (NEVER use '*' in production)
+# To find your IP: curl https://api.ipify.org
+# Format: YOUR.IP.ADDRESS/32 for single IP or YOUR.IP.ADDRESS/24 for subnet
+allowed_ip_range = "YOUR.IP.ADDRESS.HERE/32"
 
 # Optional: Override default values
 # resource_group_name = "forensics-axiom-rg"
@@ -10,10 +19,6 @@
 # vm_name = "axiom-forensics-vm"
 # vm_size = "Standard_D8s_v3"
 # admin_username = "azureuser"
-# storage_account_name = "forensicsaxiomstorage"
-
-# Security: Restrict RDP access to your IP
-# allowed_ip_range = "YOUR.IP.ADDRESS.HERE/32"
 
 # Optional: Custom tags
 # tags = {
@@ -22,3 +27,4 @@
 #   ManagedBy   = "Terraform"
 #   Team        = "YourTeamName"
 # }
+
