@@ -60,12 +60,8 @@ fi
 # Check for Terraform
 if command -v terraform &> /dev/null; then
     print_success "Terraform is installed"
-    # Use jq if available for robust JSON parsing, otherwise fall back to grep/cut
-    if command -v jq &> /dev/null; then
-        TF_VERSION=$(terraform version -json 2>/dev/null | jq -r '.terraform_version' 2>/dev/null || terraform version | head -1 | cut -d'v' -f2 | cut -d' ' -f1)
-    else
-        TF_VERSION=$(terraform version -json 2>/dev/null | grep -o '"terraform_version":"[^"]*"' | cut -d'"' -f4 2>/dev/null || terraform version | head -1 | cut -d'v' -f2 | cut -d' ' -f1)
-    fi
+    # Simple and reliable version extraction
+    TF_VERSION=$(terraform version | head -1 | sed 's/Terraform v//' | cut -d' ' -f1)
     print_info "Terraform version: $TF_VERSION"
 else
     print_error "Terraform is not installed"

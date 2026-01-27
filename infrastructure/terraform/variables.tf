@@ -48,10 +48,8 @@ variable "allowed_ip_range" {
   description = "IP range allowed to RDP into the VM. Must be explicitly set for security. Use format: YOUR.IP.ADDRESS/32 for single IP or YOUR.IP.ADDRESS/24 for subnet. NEVER use '*' in production."
   type        = string
   
-  validation {
-    condition     = var.allowed_ip_range != "*" || var.allowed_ip_range == "*"
-    error_message = "Warning: Using '*' allows RDP access from any IP address. This is a security risk."
-  }
+  # Note: While '*' is technically valid, it's a security risk.
+  # The deployment script will warn users if this value is used.
 }
 
 variable "tags" {
