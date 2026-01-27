@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CharacterChat } from '../components/LLM';
 import { BroCallsManager } from '../components/BroCalls';
+import { usePageViewTracking, useComponentTracking, trackUserAction, trackEvent } from '../telemetry';
 import './DashboardPage.css';
 
 // Helper to get initial dashboard state from localStorage
@@ -24,6 +25,13 @@ export function DashboardPage({ onNavigate }) {
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [rosterExpiry] = useState(initialState.rosterExpiry);
+  
+  // Track page views and component lifecycle
+  usePageViewTracking('DashboardPage', { 
+    hasRoster: !!roster,
+    rosterSize: roster ? getAllRosterCharacters().length : 0
+  })
+  useComponentTracking('DashboardPage')
 
   const getDaysRemaining = () => {
     if (!rosterExpiry) return 0;
@@ -33,6 +41,11 @@ export function DashboardPage({ onNavigate }) {
   };
 
   const handleCharacterClick = (character) => {
+    trackUserAction('click', 'character-card', { 
+      characterId: character.id,
+      characterName: character.name,
+      archetype: character.archetype
+    })
     setSelectedCharacter(character);
     setShowChat(true);
   };
@@ -41,15 +54,27 @@ export function DashboardPage({ onNavigate }) {
     if (!roster) return [];
     return [...(roster.prebuilt || []), roster.alphaBro].filter(Boolean);
   };
+  
+  const handleCloseChat = () => {
+    trackUserAction('close', 'character-chat', {
+      characterName: selectedCharacter?.name
+    })
+    setShowChat(false);
+    setSelectedCharacter(null);
+  };
 
   if (!roster) {
+    trackEvent('dashboard_no_roster')
     return (
       <div className="dashboard-empty">
         <h2>No Roster Selected</h2>
         <p>You haven't built your roster yet. Choose your 4 + 1 to get started.</p>
         <button 
           className="cta-button"
-          onClick={() => onNavigate?.('home')}
+          onClick={() => {
+            trackUserAction('click', 'build-roster-redirect')
+            onNavigate?.('home')
+          }}
         >
           Build Your Roster
         </button>
@@ -121,10 +146,7 @@ export function DashboardPage({ onNavigate }) {
         <div className="chat-modal">
           <CharacterChat
             character={selectedCharacter}
-            onClose={() => {
-              setShowChat(false);
-              setSelectedCharacter(null);
-            }}
+            onClose={handleCloseChat}
           />
         </div>
       )}

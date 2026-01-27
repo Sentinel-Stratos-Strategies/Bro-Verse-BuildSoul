@@ -1,6 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { HomePage, DashboardPage } from './pages'
 import { UserProfile } from './components/UserProfile'
+import { ErrorBoundary, trackNavigation, trackUserAction, useComponentTracking } from './telemetry'
 import './App.css'
 
 /**
@@ -9,33 +11,63 @@ import './App.css'
  */
 function AppContent() {
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Track component lifecycle
+  useComponentTracking('AppContent')
+
+  // Track route changes
+  useEffect(() => {
+    trackNavigation(document.referrer, location.pathname)
+  }, [location.pathname])
 
   const handleNavigate = (page) => {
+    const currentPath = location.pathname
+    let targetPath = '/'
+    
     switch(page) {
       case 'home':
-        navigate('/')
+        targetPath = '/'
         break
       case 'dashboard':
-        navigate('/dashboard')
+        targetPath = '/dashboard'
         break
       case 'profile':
-        navigate('/profile')
+        targetPath = '/profile'
         break
       default:
-        navigate('/')
+        targetPath = '/'
     }
+    
+    trackNavigation(currentPath, targetPath)
+    navigate(targetPath)
   }
 
   return (
     <div className="broverse-app">
       <nav className="app-nav">
-        <div className="nav-brand" onClick={() => navigate('/')}>
+        <div 
+          className="nav-brand" 
+          onClick={() => {
+            trackUserAction('click', 'nav-brand')
+            navigate('/')
+          }}
+        >
           BROVERSE
         </div>
         <div className="nav-links">
-          <button onClick={() => navigate('/')}>Home</button>
-          <button onClick={() => navigate('/dashboard')}>Dashboard</button>
-          <button onClick={() => navigate('/profile')}>Profile</button>
+          <button onClick={() => {
+            trackUserAction('click', 'nav-home')
+            navigate('/')
+          }}>Home</button>
+          <button onClick={() => {
+            trackUserAction('click', 'nav-dashboard')
+            navigate('/dashboard')
+          }}>Dashboard</button>
+          <button onClick={() => {
+            trackUserAction('click', 'nav-profile')
+            navigate('/profile')
+          }}>Profile</button>
         </div>
       </nav>
 
@@ -56,9 +88,11 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ErrorBoundary name="App">
+      <Router>
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   )
 }
 
