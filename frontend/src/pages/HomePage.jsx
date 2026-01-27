@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CharacterSelection } from '../components/CharacterSelection';
+import { tracer } from '../telemetry';
 import characters from '../data/characters.json';
 import './HomePage.css';
 
@@ -12,6 +13,11 @@ export function HomePage({ onNavigate }) {
 
   const handleSelectionComplete = (roster) => {
     console.log('Roster locked:', roster);
+    tracer.trackEvent('roster_locked', { 
+      prebuiltCount: roster.prebuilt?.length || 0,
+      hasAlphaBro: !!roster.alphaBro,
+      characters: roster.prebuilt?.map(c => c.name).join(', ')
+    });
     onNavigate?.('dashboard');
   };
 
@@ -37,7 +43,10 @@ export function HomePage({ onNavigate }) {
         
         <button 
           className="cta-button"
-          onClick={() => setShowSelection(true)}
+          onClick={() => {
+            tracer.trackUserAction('click', 'build-roster-button', { page: 'home' });
+            setShowSelection(true);
+          }}
         >
           Build Your Roster
         </button>

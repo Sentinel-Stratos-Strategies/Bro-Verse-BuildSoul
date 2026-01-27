@@ -6,6 +6,8 @@
  * For now, it provides placeholder responses based on character data
  */
 
+import { tracer } from '../../telemetry';
+
 /**
  * Generate a response from a character based on context
  * @param {Object} character - The character to respond as
@@ -14,6 +16,8 @@
  * @returns {Promise<string>} The character's response
  */
 export async function generateCharacterResponse(character, prompt, options = {}) {
+  const timer = tracer.startTimer('llm_response_generation');
+  
   const {
     maxTokens = 150,
     temperature = 0.7,
@@ -21,21 +25,52 @@ export async function generateCharacterResponse(character, prompt, options = {})
     apiEndpoint = null // For future API integration
   } = options;
 
-  // If local LLM is provided, use it
-  if (localLLM) {
-    return await localLLM.generate(buildPrompt(character, prompt), {
-      maxTokens,
-      temperature
+  console.log(`Generating response for ${character.name}: "${prompt.substring(0, 50)}..."`);
+
+  try {
+    let response;
+    
+    // If local LLM is provided, use it
+    if (localLLM) {
+      response = await localLLM.generate(buildPrompt(character, prompt), {
+        maxTokens,
+        temperature
+      });
+    }
+    // If API endpoint is provided, use it
+    else if (apiEndpoint) {
+      response = await callLLMApi(apiEndpoint, character, prompt, options);
+    }
+    // Fallback: Generate a response based on character's voice style
+    else {
+      response = generateFallbackResponse(character, prompt);
+    }
+    
+    const duration = timer.stop({ 
+      character: character.name,
+      promptLength: prompt.length,
+      responseLength: response.length,
+      mode: localLLM ? 'local' : apiEndpoint ? 'api' : 'fallback'
     });
+    
+    tracer.trackEvent('llm_response_generated', {
+      character: character.name,
+      archetype: character.archetype,
+      promptLength: prompt.length,
+      responseLength: response.length,
+      duration
+    });
+    
+    return response;
+  } catch (error) {
+    timer.stop({ error: true, character: character.name });
+    tracer.trackError(error, { 
+      operation: 'generateCharacterResponse',
+      character: character.name 
+    });
+    console.error('Error generating character response:', error);
+    return generateFallbackResponse(character, prompt);
   }
-
-  // If API endpoint is provided, use it
-  if (apiEndpoint) {
-    return await callLLMApi(apiEndpoint, character, prompt, options);
-  }
-
-  // Fallback: Generate a response based on character's voice style
-  return generateFallbackResponse(character, prompt);
 }
 
 /**
@@ -77,7 +112,11 @@ function buildPrompt(character, userMessage) {
  * Call external LLM API
  */
 async function callLLMApi(endpoint, character, prompt, options) {
+  const startTime = performance.now();
+  
   try {
+    console.log(`Calling LLM API: ${endpoint}`);
+    
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -91,14 +130,30 @@ async function callLLMApi(endpoint, character, prompt, options) {
       })
     });
 
+    const duration = performance.now() - startTime;
+
     if (!response.ok) {
-      throw new Error('LLM API request failed');
+      throw new Error(`LLM API request failed: ${response.status}`);
     }
 
     const data = await response.json();
+    
+    tracer.trackApiCall(endpoint, 'POST', response.status, duration, {
+      character: character.name,
+      success: true
+    });
+    
     return data.response || data.message || data.content;
   } catch (error) {
+    const duration = performance.now() - startTime;
     console.error('LLM API error:', error);
+    
+    tracer.trackApiCall(endpoint, 'POST', 'error', duration, {
+      character: character.name,
+      success: false,
+      error: error.message
+    });
+    
     return generateFallbackResponse(character, prompt);
   }
 }

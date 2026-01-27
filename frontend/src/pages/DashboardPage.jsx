@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CharacterChat } from '../components/LLM';
 import { BroCallsManager } from '../components/BroCalls';
+import { tracer } from '../telemetry';
 import './DashboardPage.css';
 
 // Helper to get initial dashboard state from localStorage
@@ -33,6 +34,10 @@ export function DashboardPage({ onNavigate }) {
   };
 
   const handleCharacterClick = (character) => {
+    tracer.trackCharacterInteraction('chat_opened', character, { 
+      source: 'dashboard_roster' 
+    });
+    console.log(`Opening chat with ${character.name}`);
     setSelectedCharacter(character);
     setShowChat(true);
   };
@@ -122,6 +127,10 @@ export function DashboardPage({ onNavigate }) {
           <CharacterChat
             character={selectedCharacter}
             onClose={() => {
+              tracer.trackCharacterInteraction('chat_closed', selectedCharacter, {
+                source: 'dashboard_roster'
+              });
+              console.log(`Closing chat with ${selectedCharacter.name}`);
               setShowChat(false);
               setSelectedCharacter(null);
             }}
