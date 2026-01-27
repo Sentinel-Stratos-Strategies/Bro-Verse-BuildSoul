@@ -107,7 +107,7 @@ resource "azurerm_storage_account" "forensics_storage" {
 # Storage Container (100 GB bucket)
 resource "azurerm_storage_container" "forensics_container" {
   name                  = "forensics-data"
-  storage_account_id    = azurerm_storage_account.forensics_storage.id
+  storage_account_name  = azurerm_storage_account.forensics_storage.name
   container_access_type = "private"
 }
 
