@@ -1,0 +1,30 @@
+# Azure CLI outputs
+*.log
+
+# Sensitive parameter files (if they contain secrets)
+*.secrets.json
+*.private.json
+
+# Terraform state files (if using Terraform in future)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Local environment files
+.env
+.env.local
+
+# Azure credentials
+*.publishsettings
+*.azureauth
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
