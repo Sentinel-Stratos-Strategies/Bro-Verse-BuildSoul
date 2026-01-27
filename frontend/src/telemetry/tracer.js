@@ -160,8 +160,8 @@ class Tracer {
     this.trackEvent('bro_call', {
       category: EventCategory.BRO_CALL,
       action, // 'triggered', 'viewed', 'dismissed', 'expired'
-      character: character?.name,
-      characterArchetype: character?.archetype,
+      character: character?.name || 'unknown',
+      characterArchetype: character?.archetype || 'unknown',
       ...metadata
     })
   }
@@ -173,8 +173,8 @@ class Tracer {
     this.trackEvent('character_interaction', {
       category: EventCategory.CHARACTER,
       action, // 'selected', 'chat_opened', 'chat_closed', 'message_sent'
-      character: character?.name,
-      characterArchetype: character?.archetype,
+      character: character?.name || 'unknown',
+      characterArchetype: character?.archetype || 'unknown',
       ...metadata
     })
   }

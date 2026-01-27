@@ -149,7 +149,7 @@ async function callLLMApi(endpoint, character, prompt, options) {
     console.error('LLM API error:', error);
     
     tracer.trackApiCall(endpoint, 'POST', 'error', duration, {
-      character: character.name,
+      character: character?.name || 'unknown',
       success: false,
       error: error.message
     });
