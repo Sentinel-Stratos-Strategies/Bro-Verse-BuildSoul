@@ -1,0 +1,24 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and fill in the values
+
+# Required: Set a strong admin password
+# admin_password = "YourStrongPassword123!"
+
+# Optional: Override default values
+# resource_group_name = "forensics-axiom-rg"
+# location = "centralus"
+# vm_name = "axiom-forensics-vm"
+# vm_size = "Standard_D8s_v3"
+# admin_username = "azureuser"
+# storage_account_name = "forensicsaxiomstorage"
+
+# Security: Restrict RDP access to your IP
+# allowed_ip_range = "YOUR.IP.ADDRESS.HERE/32"
+
+# Optional: Custom tags
+# tags = {
+#   Environment = "Forensics"
+#   Purpose     = "Axiom Software"
+#   ManagedBy   = "Terraform"
+#   Team        = "YourTeamName"
+# }

@@ -1,0 +1,115 @@
+name: Azure VM Cloud Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Deployment action'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+          - start-vm
+          - stop-vm
+        default: 'plan'
+      auto_approve:
+        description: 'Auto-approve terraform apply/destroy'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    name: Terraform ${{ github.event.inputs.action }}
+    runs-on: ubuntu-latest
+    environment: production
+    
+    defaults:
+      run:
+        working-directory: infrastructure/terraform
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.0"
+      
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Terraform Init
+        run: terraform init
+      
+      - name: Terraform Validate
+        run: terraform validate
+      
+      - name: Terraform Plan
+        if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply'
+        run: terraform plan -out=tfplan
+        env:
+          TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+          TF_VAR_storage_account_name: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+          TF_VAR_allowed_ip_range: ${{ secrets.ALLOWED_IP_RANGE }}
+      
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        run: |
+          if [ "${{ github.event.inputs.auto_approve }}" == "true" ]; then
+            terraform apply -auto-approve tfplan
+          else
+            terraform apply tfplan
+          fi
+        env:
+          TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+          TF_VAR_storage_account_name: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+          TF_VAR_allowed_ip_range: ${{ secrets.ALLOWED_IP_RANGE }}
+      
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: |
+          if [ "${{ github.event.inputs.auto_approve }}" == "true" ]; then
+            terraform destroy -auto-approve
+          else
+            terraform destroy
+          fi
+        env:
+          TF_VAR_admin_password: ${{ secrets.VM_ADMIN_PASSWORD }}
+          TF_VAR_storage_account_name: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+          TF_VAR_allowed_ip_range: ${{ secrets.ALLOWED_IP_RANGE }}
+      
+      - name: Terraform Output
+        if: github.event.inputs.action == 'apply'
+        run: terraform output
+      
+      - name: Start VM
+        if: github.event.inputs.action == 'start-vm'
+        run: |
+          az vm start \
+            --resource-group forensics-axiom-rg \
+            --name axiom-forensics-vm
+      
+      - name: Stop VM
+        if: github.event.inputs.action == 'stop-vm'
+        run: |
+          az vm deallocate \
+            --resource-group forensics-axiom-rg \
+            --name axiom-forensics-vm
+      
+      - name: Upload Terraform Plan
+        if: github.event.inputs.action == 'plan'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: infrastructure/terraform/tfplan
+          retention-days: 7
