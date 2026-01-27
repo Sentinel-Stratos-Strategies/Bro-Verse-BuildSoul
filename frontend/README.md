@@ -1,16 +1,86 @@
-# React + Vite
+# BroVerse Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The BroVerse is a React application for sacred construction and personal growth. This isn't therapy—it's resurrection.
 
-Currently, two official plugins are available:
+## 🚀 Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
+- Node.js >= 20.19.0
+- npm (comes with Node.js)
 
-## React Compiler
+### Installation & Running
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Expanding the ESLint configuration
+2. **Set up environment variables (Optional):**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   If you want Azure Application Insights telemetry, edit `.env` and add your connection string. Otherwise, the app works fine without it.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   
+   The app will be available at `http://localhost:5173`
+
+### Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production (outputs to `dist/`)
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint to check code quality
+
+## 🏗️ Tech Stack
+
+- **React 19.2** - UI framework
+- **React Router DOM 7.13** - Client-side routing
+- **Vite 7.2** (Rolldown) - Lightning-fast build tool
+- **Azure Application Insights** - Telemetry and monitoring
+
+## 📦 Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/          # Page components (Home, Dashboard, Profile)
+│   ├── data/           # Static data and configurations
+│   ├── telemetry/      # Azure Application Insights setup
+│   ├── App.jsx         # Main app component with routing
+│   ├── main.jsx        # Application entry point
+│   └── index.css       # Global styles
+├── public/             # Static assets
+├── index.html          # HTML template
+└── vite.config.js      # Vite configuration
+```
+
+## 🎯 Features
+
+- **19 Archetypes + 1 Custom Character** - Build your roster
+- **Bro Calls** - 3x per week, 7-10 second wisdom drops
+- **30-Day Lock** - Commitment-based growth system
+- **AI-Powered Characters** - Each speaks with their own voice
+
+## 🌐 Deployment
+
+The build output in `dist/` is static and can be deployed to:
+- Azure Static Web Apps
+- GitHub Pages
+- Netlify
+- Vercel
+- Any static hosting service
+
+Build command: `npm run build`
+Output directory: `dist/`
+
+## 📝 Notes
+
+- The app uses rolldown-vite for faster build times
+- Application Insights integration is optional but recommended for production monitoring
+- All routes are handled client-side with React Router
