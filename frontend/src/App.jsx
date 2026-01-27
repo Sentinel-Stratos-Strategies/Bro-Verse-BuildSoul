@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import { HomePage, DashboardPage } from './pages'
+import { HomePage, DashboardPage, EvaluationPage } from './pages'
 import { UserProfile } from './components/UserProfile'
 import './App.css'
 
@@ -21,6 +21,9 @@ function AppContent() {
       case 'profile':
         navigate('/profile')
         break
+      case 'evaluation':
+        navigate('/evaluation')
+        break
       default:
         navigate('/')
     }
@@ -36,6 +39,7 @@ function AppContent() {
           <button onClick={() => navigate('/')}>Home</button>
           <button onClick={() => navigate('/dashboard')}>Dashboard</button>
           <button onClick={() => navigate('/profile')}>Profile</button>
+          <button onClick={() => navigate('/evaluation')}>Evaluation</button>
         </div>
       </nav>
 
@@ -44,6 +48,7 @@ function AppContent() {
           <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
           <Route path="/dashboard" element={<DashboardPage onNavigate={handleNavigate} />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/evaluation" element={<EvaluationPage />} />
         </Routes>
       </main>
 
