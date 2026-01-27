@@ -18,7 +18,8 @@ function AppContent() {
 
   // Track route changes
   useEffect(() => {
-    trackNavigation(document.referrer, location.pathname)
+    // Note: On first load, we don't have a previous path
+    trackNavigation('', location.pathname)
   }, [location.pathname])
 
   const handleNavigate = (page) => {

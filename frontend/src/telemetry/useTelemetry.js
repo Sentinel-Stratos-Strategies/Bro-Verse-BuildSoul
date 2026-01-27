@@ -28,14 +28,13 @@ export const useComponentTracking = (componentName) => {
 /**
  * Hook to track page views
  * @param {string} pageName - Name of the page
- * @param {Object} properties - Additional properties
+ * @param {Object} properties - Additional properties (should be stable/memoized)
  */
 export const usePageViewTracking = (pageName, properties = {}) => {
-  const propertiesJson = JSON.stringify(properties)
-  
   useEffect(() => {
-    trackPageView(pageName, JSON.parse(propertiesJson))
-  }, [pageName, propertiesJson])
+    trackPageView(pageName, properties)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageName])
 }
 
 /**
@@ -86,18 +85,29 @@ export const useTrackedEffect = (effectName) => {
 
 /**
  * Hook to track state changes
- * @param {*} state - State to track
+ * Note: Only use for primitive values or small objects to avoid performance issues
+ * @param {*} state - State to track (should be primitive or small object)
  * @param {string} stateName - Name of the state
  */
 export const useStateTracking = (state, stateName) => {
   const prevStateRef = useRef(state)
   
   useEffect(() => {
+    // Only track if state actually changed
     if (prevStateRef.current !== state) {
+      // For primitive values, track directly
+      // For objects, consider tracking specific properties instead
+      const oldValue = typeof prevStateRef.current === 'object' 
+        ? 'object' 
+        : String(prevStateRef.current)
+      const newValue = typeof state === 'object'
+        ? 'object'
+        : String(state)
+        
       trackEvent('state_change', {
         stateName,
-        oldValue: JSON.stringify(prevStateRef.current),
-        newValue: JSON.stringify(state)
+        oldValue,
+        newValue
       })
       prevStateRef.current = state
     }
