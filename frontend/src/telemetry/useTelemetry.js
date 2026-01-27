@@ -33,6 +33,8 @@ export const useComponentTracking = (componentName) => {
 export const usePageViewTracking = (pageName, properties = {}) => {
   useEffect(() => {
     trackPageView(pageName, properties)
+    // Only re-track when pageName changes, not on every properties change
+    // to avoid excessive tracking. Properties should be memoized if frequent updates.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageName])
 }
