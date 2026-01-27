@@ -8,7 +8,7 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
-    ignores: ['scripts/**'],
+    ignores: ['scripts/**', 'src/evaluation/nodeEvaluator.js'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
@@ -28,7 +28,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['scripts/**/*.js'],
+    files: ['scripts/**/*.js', 'src/evaluation/nodeEvaluator.js'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.node,
