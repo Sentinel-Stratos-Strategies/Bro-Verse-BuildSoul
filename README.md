@@ -88,10 +88,14 @@ The production-ready files will be in `frontend/dist/`
 
 For more detailed information, see the [Frontend README](frontend/README.md).
 
-## 🔒 Environment Variables
+## 🔒 Environment Variables (Optional)
 
-Copy `.env.example` to `.env` in the frontend directory and configure:
-- `VITE_APPINSIGHTS_CONNECTION_STRING` - Azure Application Insights (optional)
+Azure Application Insights telemetry is optional. If you want to enable it:
+
+1. Copy `.env.example` to `.env` in the frontend directory
+2. Configure: `VITE_APPINSIGHTS_CONNECTION_STRING` with your Azure Application Insights connection string
+
+The app works perfectly without this configuration.
 
 ## 🎨 The BroVerse Philosophy
 

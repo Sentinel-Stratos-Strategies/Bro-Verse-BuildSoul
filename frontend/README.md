@@ -15,12 +15,12 @@ The BroVerse is a React application for sacred construction and personal growth.
    npm install
    ```
 
-2. **Set up environment variables:**
+2. **Set up environment variables (Optional):**
    ```bash
    cp .env.example .env
    ```
    
-   Edit `.env` and add your Azure Application Insights connection string (optional).
+   If you want Azure Application Insights telemetry, edit `.env` and add your connection string. Otherwise, the app works fine without it.
 
 3. **Start the development server:**
    ```bash
