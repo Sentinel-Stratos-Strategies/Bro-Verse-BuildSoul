@@ -30,6 +30,8 @@ model User {
   relationshipsReceived  Relationship[] @relation("relationshipAddressee")
   challengesCreated Challenge[]
   challengeParticipants ChallengeParticipant[]
+  notificationsReceived Notification[] @relation("notificationRecipient")
+  notificationsSent Notification[] @relation("notificationActor")
 }
 
 model Relationship {
@@ -143,4 +145,22 @@ model ChallengeCheckin {
   participant ChallengeParticipant @relation(fields: [participantId], references: [id])
 
   @@index([participantId, checkinDate])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  recipientId String
+  actorId     String?
+  type        String
+  entityId    String?
+  entityType  String?
+  message     String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  recipient User  @relation("notificationRecipient", fields: [recipientId], references: [id])
+  actor     User? @relation("notificationActor", fields: [actorId], references: [id])
+
+  @@index([recipientId, createdAt])
+  @@index([isRead])
 }

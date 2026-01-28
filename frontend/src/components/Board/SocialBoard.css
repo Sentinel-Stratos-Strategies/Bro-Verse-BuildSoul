@@ -312,6 +312,50 @@
     font-size: 0.85rem;
 }
 
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.notification-item strong {
+    display: block;
+    color: #fff;
+}
+
+.notification-item span {
+    color: #b5b8c8;
+    font-size: 0.9rem;
+}
+
+.notification-meta {
+    font-size: 0.75rem;
+    color: #98a2b3;
+    margin-top: 6px;
+}
+
+.notification-item button {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 999px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
 .challenge-preview {
     display: flex;
     flex-direction: column;

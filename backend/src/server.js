@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import challengeRoutes from './routes/challenges.js';
+import notificationRoutes from './routes/notifications.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 app.use('/challenges', challengeRoutes);
+app.use('/notifications', notificationRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {

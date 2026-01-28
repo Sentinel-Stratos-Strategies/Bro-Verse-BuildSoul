@@ -115,6 +115,9 @@ export function SocialBoard() {
     const [challengeNoteInputs, setChallengeNoteInputs] = useState({});
     const [isLoadingChallenges, setIsLoadingChallenges] = useState(false);
     const [challengeError, setChallengeError] = useState('');
+    const [notifications, setNotifications] = useState([]);
+    const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
+    const [notificationError, setNotificationError] = useState('');
 
     useEffect(() => {
         saveToStorage(STORAGE_KEYS.friends, friends);
@@ -176,7 +179,17 @@ export function SocialBoard() {
         if (isAuthenticated) {
             fetchPosts();
             fetchChallenges();
+            fetchNotifications();
         }
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        const interval = setInterval(() => {
+            fetchNotifications();
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, [isAuthenticated]);
 
     const fetchChallenges = async () => {
@@ -196,6 +209,37 @@ export function SocialBoard() {
             }
         } finally {
             setIsLoadingChallenges(false);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        setIsLoadingNotifications(true);
+        setNotificationError('');
+        try {
+            const data = await apiRequest('/notifications');
+            setNotifications(data);
+        } catch (err) {
+            if (err?.status === 401) {
+                setIsAuthenticated(false);
+                setNotificationError('Session expired. Log in again to view notifications.');
+                setAuthNotice('Session expired. Please log in again.');
+            } else {
+                setNotificationError('Unable to load notifications.');
+            }
+        } finally {
+            setIsLoadingNotifications(false);
+        }
+    };
+
+    const handleMarkNotificationRead = async (notificationId) => {
+        try {
+            await apiRequest(`/notifications/${notificationId}/read`, {
+                method: 'POST'
+            });
+            setNotifications((prev) => prev.filter((note) => note.id !== notificationId));
+        } catch {
+            setStatusMessage('Unable to update notification.');
+            setTimeout(() => setStatusMessage(''), 2000);
         }
     };
 
@@ -505,6 +549,41 @@ export function SocialBoard() {
                 </section>
 
                 <aside className="board-sidebar">
+                    <div className="sidebar-card">
+                        <h3>Notifications</h3>
+                        {!isAuthenticated && (
+                            <p className="challenge-loading">Log in to see updates.</p>
+                        )}
+                        {isAuthenticated && isLoadingNotifications && (
+                            <p className="challenge-loading">Loading notifications...</p>
+                        )}
+                        {isAuthenticated && notificationError && (
+                            <p className="challenge-loading">
+                                {notificationError}
+                                <button className="board-retry" onClick={fetchNotifications}>
+                                    Retry
+                                </button>
+                            </p>
+                        )}
+                        {isAuthenticated && !isLoadingNotifications && !notificationError && notifications.length === 0 && (
+                            <p className="challenge-loading">No new alerts yet.</p>
+                        )}
+                        <ul className="notification-list">
+                            {isAuthenticated && notifications.map((note) => (
+                                <li key={note.id} className="notification-item">
+                                    <div>
+                                        <strong>{note.actor?.displayName || 'Brother'}</strong>
+                                        <span>{note.message || 'sent an update.'}</span>
+                                        <div className="notification-meta">{formatTimestamp(note.createdAt)}</div>
+                                    </div>
+                                    <button onClick={() => handleMarkNotificationRead(note.id)}>
+                                        Mark read
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
                     <div className="sidebar-card">
                         <h3>Your Circle</h3>
                         <p>Add brothers to keep challenges accountable.</p>

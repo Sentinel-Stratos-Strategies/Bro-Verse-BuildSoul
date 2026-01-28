@@ -62,6 +62,24 @@ router.post('/:challengeId/join', requireAuth, async (req, res) => {
         }
     });
 
+    const challenge = await prisma.challenge.findUnique({
+        where: { id: challengeId },
+        select: { creatorId: true, title: true }
+    });
+
+    if (challenge && challenge.creatorId !== req.user.sub) {
+        await prisma.notification.create({
+            data: {
+                recipientId: challenge.creatorId,
+                actorId: req.user.sub,
+                type: 'challenge_join',
+                entityType: 'challenge',
+                entityId: challengeId,
+                message: `joined your challenge: ${challenge.title}`
+            }
+        });
+    }
+
     return res.json(participant);
 });
 
@@ -93,6 +111,24 @@ router.post('/:challengeId/checkins', requireAuth, async (req, res) => {
         where: { id: participant.id },
         data: { currentStreak: { increment: 1 }, bestStreak: { increment: 1 } }
     });
+
+    const challenge = await prisma.challenge.findUnique({
+        where: { id: challengeId },
+        select: { creatorId: true, title: true }
+    });
+
+    if (challenge && challenge.creatorId !== req.user.sub) {
+        await prisma.notification.create({
+            data: {
+                recipientId: challenge.creatorId,
+                actorId: req.user.sub,
+                type: 'challenge_checkin',
+                entityType: 'challenge',
+                entityId: challengeId,
+                message: `checked in on: ${challenge.title}`
+            }
+        });
+    }
 
     return res.status(201).json(checkin);
 });

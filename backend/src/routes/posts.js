@@ -83,6 +83,24 @@ router.post('/:postId/reactions', requireAuth, async (req, res) => {
         }
     });
 
+    const post = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { authorId: true }
+    });
+
+    if (post && post.authorId !== req.user.sub) {
+        await prisma.notification.create({
+            data: {
+                recipientId: post.authorId,
+                actorId: req.user.sub,
+                type: 'reaction',
+                entityType: 'post',
+                entityId: postId,
+                message: 'reacted to your post'
+            }
+        });
+    }
+
     return res.json(reaction);
 });
 
@@ -104,6 +122,24 @@ router.post('/:postId/comments', requireAuth, async (req, res) => {
             author: { select: { id: true, displayName: true } }
         }
     });
+
+    const post = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { authorId: true }
+    });
+
+    if (post && post.authorId !== req.user.sub) {
+        await prisma.notification.create({
+            data: {
+                recipientId: post.authorId,
+                actorId: req.user.sub,
+                type: 'comment',
+                entityType: 'post',
+                entityId: postId,
+                message: 'commented on your post'
+            }
+        });
+    }
 
     return res.status(201).json(comment);
 });
