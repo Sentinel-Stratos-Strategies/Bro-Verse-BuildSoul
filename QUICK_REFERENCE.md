@@ -2,11 +2,12 @@
 
 ## Status at a Glance
 ```
-✅ INFRASTRUCTURE:     All running (SWA + API + DB)
+✅ INFRASTRUCTURE:     All running (SWA + API + DB + Storage + Cosmos)
 ✅ AUTHENTICATION:     Azure + GitHub connected
-✅ PROVIDERS:          Storage + Cosmos DB registered (UNBLOCKED!)
+✅ PROVIDERS:          Storage + Cosmos DB ACTIVE (both provisioned)
+✅ MILESTONE 4:        ✅ COMPLETE - Infrastructure + Code ready
 ✅ WORKFLOWS:          Auto-deploy on git push
-✅ READY TO EXECUTE:   YES - Awaiting your "go" signal
+✅ READY FOR:          Milestone 5 (Bot Containerization)
 ```
 
 ## What You Have
@@ -15,13 +16,17 @@
 - ✅ User authentication (register/login)
 - ✅ Challenge tracking with progress
 - ✅ Custom domain (live https site)
-- ✅ ~2000 lines of backend code
+- ✅ **NEW**: Azure Blob Storage (posts + avatars)
+- ✅ **NEW**: Cosmos DB (AI profiles + personas)
+- ✅ **NEW**: AI persona management system
+- ✅ **NEW**: Bot service containerization framework
+- ✅ ~2300 lines of backend code
 - ✅ ~1500 lines of frontend code
-- ✅ Database with 3 migrations
+- ✅ Database with 3 migrations + Cosmos
 
 ## What's Next
-1. **Milestone 4** (3-4h): File storage + AI profile persistence
-2. **Milestone 5** (2-3h): 20 containerized AI bots
+1. ✅ **Milestone 4** (3-4h): File storage + AI profile persistence [DONE]
+2. **Milestone 5** (2-3h): 20 containerized AI bots [READY TO START]
 3. **Milestone 6** (2-3h): Frontend UI for managing bots
 4. **Milestone 7** (2-3h): E2E tests + security audit
 5. **Milestone 8** (1-2h): Monitoring + launch prep
