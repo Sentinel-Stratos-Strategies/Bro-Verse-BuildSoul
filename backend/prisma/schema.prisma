@@ -55,6 +55,8 @@ model Post {
   type       String   @default("reflection")
   content    String
   mediaUrl   String?
+  mediaBlobName String?
+  mediaType  String?
   challengeId String?
   isDeleted  Boolean  @default(false)
   createdAt  DateTime @default(now())
