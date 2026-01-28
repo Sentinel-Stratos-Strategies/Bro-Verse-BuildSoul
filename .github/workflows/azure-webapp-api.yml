@@ -27,7 +27,7 @@ jobs:
 
             - name: Build deploy package
               working-directory: backend
-              run: zip -r ../broverse-api.zip . -x ".env"
+              run: zip -r ../broverse-api.zip . -x "node_modules/*" ".env*" ".git*" "dist/*" ".prisma/*"
 
             - name: Deploy to Azure Web App
               uses: azure/webapps-deploy@v3
@@ -35,3 +35,4 @@ jobs:
                   app-name: broverse-api-20260127
                   publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
                   package: broverse-api.zip
+                  clean: true
