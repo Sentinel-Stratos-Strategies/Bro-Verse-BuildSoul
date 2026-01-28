@@ -28,6 +28,8 @@ model User {
   reactions       Reaction[]
   relationshipsRequested Relationship[] @relation("relationshipRequester")
   relationshipsReceived  Relationship[] @relation("relationshipAddressee")
+  challengesCreated Challenge[]
+  challengeParticipants ChallengeParticipant[]
 }
 
 model Relationship {
@@ -59,6 +61,7 @@ model Post {
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[]
   reactions Reaction[]
+  challenge Challenge? @relation(fields: [challengeId], references: [id])
 
   @@index([authorId, createdAt])
 }
@@ -92,4 +95,52 @@ model Reaction {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId, type])
+}
+
+model Challenge {
+  id            String   @id @default(uuid())
+  creatorId     String
+  title         String
+  description   String
+  challengeType String   @default("custom")
+  startDate     DateTime @default(now())
+  endDate       DateTime?
+  rules         Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  creator       User                  @relation(fields: [creatorId], references: [id])
+  participants  ChallengeParticipant[]
+  posts         Post[]
+
+  @@index([creatorId, createdAt])
+}
+
+model ChallengeParticipant {
+  id           String   @id @default(uuid())
+  challengeId  String
+  userId       String
+  status       String   @default("active")
+  currentStreak Int     @default(0)
+  bestStreak   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  checkins  ChallengeCheckin[]
+
+  @@unique([challengeId, userId])
+  @@index([userId])
+}
+
+model ChallengeCheckin {
+  id             String   @id @default(uuid())
+  participantId  String
+  checkinDate    DateTime @default(now())
+  notes          String?
+
+  participant ChallengeParticipant @relation(fields: [participantId], references: [id])
+
+  @@index([participantId, checkinDate])
 }

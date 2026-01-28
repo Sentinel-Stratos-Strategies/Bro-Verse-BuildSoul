@@ -299,6 +299,102 @@
     color: #fff;
 }
 
+.challenge-create {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.challenge-create input,
+.challenge-create textarea,
+.challenge-create select {
+    background: #0b0f1a;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 8px 10px;
+}
+
+.challenge-create button {
+    background: #2ecc71;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.challenge-create button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.challenge-loading {
+    font-size: 0.85rem;
+    color: #b5b8c8;
+}
+
+.challenge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.challenge-item {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.challenge-item strong {
+    color: #fff;
+    display: block;
+}
+
+.challenge-item span {
+    color: #b5b8c8;
+    font-size: 0.85rem;
+}
+
+.challenge-item button {
+    align-self: flex-start;
+    background: #ffd166;
+    border: none;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.challenge-checkin {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.challenge-checkin input {
+    flex: 1;
+    background: #0b0f1a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    padding: 6px 10px;
+    color: #fff;
+}
+
+.challenge-checkin button {
+    background: #e94560;
+    border: none;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+}
+
 @media (max-width: 900px) {
     .board-layout {
         grid-template-columns: 1fr;

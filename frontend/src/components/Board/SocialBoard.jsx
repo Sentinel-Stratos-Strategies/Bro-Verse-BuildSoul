@@ -60,6 +60,12 @@ export function SocialBoard() {
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthTokens()?.accessToken);
+    const [challenges, setChallenges] = useState([]);
+    const [challengeTitle, setChallengeTitle] = useState('');
+    const [challengeDescription, setChallengeDescription] = useState('');
+    const [challengeType, setChallengeType] = useState('custom');
+    const [challengeNoteInputs, setChallengeNoteInputs] = useState({});
+    const [isLoadingChallenges, setIsLoadingChallenges] = useState(false);
 
     useEffect(() => {
         saveToStorage(STORAGE_KEYS.friends, friends);
@@ -101,8 +107,21 @@ export function SocialBoard() {
     useEffect(() => {
         if (isAuthenticated) {
             fetchPosts();
+            fetchChallenges();
         }
     }, [isAuthenticated]);
+
+    const fetchChallenges = async () => {
+        setIsLoadingChallenges(true);
+        try {
+            const data = await apiRequest('/challenges');
+            setChallenges(data);
+        } catch {
+            setChallenges([]);
+        } finally {
+            setIsLoadingChallenges(false);
+        }
+    };
 
     const filteredPosts = useMemo(() => {
         return posts.filter((post) => {
@@ -191,6 +210,59 @@ export function SocialBoard() {
         };
         setFriends((prev) => [newFriend, ...prev]);
         setFriendName('');
+    };
+
+    const handleCreateChallenge = async () => {
+        if (!challengeTitle.trim() || !challengeDescription.trim()) return;
+        try {
+            await apiRequest('/challenges', {
+                method: 'POST',
+                body: {
+                    title: challengeTitle.trim(),
+                    description: challengeDescription.trim(),
+                    challengeType
+                }
+            });
+            setChallengeTitle('');
+            setChallengeDescription('');
+            setStatusMessage('Challenge created.');
+            fetchChallenges();
+        } catch {
+            setStatusMessage('Unable to create challenge.');
+        }
+        setTimeout(() => setStatusMessage(''), 2000);
+    };
+
+    const handleJoinChallenge = async (challengeId) => {
+        try {
+            await apiRequest(`/challenges/${challengeId}/join`, {
+                method: 'POST'
+            });
+            setStatusMessage('Challenge joined.');
+            fetchChallenges();
+        } catch {
+            setStatusMessage('Unable to join challenge.');
+        }
+        setTimeout(() => setStatusMessage(''), 2000);
+    };
+
+    const handleChallengeNoteChange = (challengeId, value) => {
+        setChallengeNoteInputs((prev) => ({ ...prev, [challengeId]: value }));
+    };
+
+    const handleCheckIn = async (challengeId) => {
+        const notes = (challengeNoteInputs[challengeId] || '').trim();
+        try {
+            await apiRequest(`/challenges/${challengeId}/checkins`, {
+                method: 'POST',
+                body: { notes }
+            });
+            setChallengeNoteInputs((prev) => ({ ...prev, [challengeId]: '' }));
+            setStatusMessage('Check-in logged.');
+        } catch {
+            setStatusMessage('Unable to check in. Join first.');
+        }
+        setTimeout(() => setStatusMessage(''), 2000);
     };
 
     return (
@@ -322,20 +394,62 @@ export function SocialBoard() {
 
                     <div className="sidebar-card">
                         <h3>Challenge Ladder</h3>
-                        <p>Stack wins to level up. (Next phase)</p>
-                        <div className="challenge-preview">
-                            <div>
-                                <strong>Level 1</strong>
-                                <span>3 wins logged</span>
-                            </div>
-                            <div>
-                                <strong>Level 2</strong>
-                                <span>Invite 1 brother</span>
-                            </div>
-                            <div>
-                                <strong>Level 3</strong>
-                                <span>Complete 1 challenge</span>
-                            </div>
+                        <p>Stack wins to level up.</p>
+                        <div className="challenge-create">
+                            <input
+                                value={challengeTitle}
+                                onChange={(event) => setChallengeTitle(event.target.value)}
+                                placeholder="Challenge title"
+                                disabled={!isAuthenticated}
+                            />
+                            <textarea
+                                value={challengeDescription}
+                                onChange={(event) => setChallengeDescription(event.target.value)}
+                                placeholder="What is the mission?"
+                                rows={2}
+                                disabled={!isAuthenticated}
+                            />
+                            <select
+                                value={challengeType}
+                                onChange={(event) => setChallengeType(event.target.value)}
+                                disabled={!isAuthenticated}
+                            >
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="30_day">30-Day</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <button onClick={handleCreateChallenge} disabled={!isAuthenticated}>
+                                Create Challenge
+                            </button>
+                        </div>
+
+                        {isLoadingChallenges && <p className="challenge-loading">Loading challenges...</p>}
+
+                        {!isLoadingChallenges && challenges.length === 0 && (
+                            <p className="challenge-loading">No active challenges yet.</p>
+                        )}
+
+                        <div className="challenge-list">
+                            {challenges.map((challenge) => (
+                                <div key={challenge.id} className="challenge-item">
+                                    <div>
+                                        <strong>{challenge.title}</strong>
+                                        <span>{challenge.description}</span>
+                                    </div>
+                                    <button onClick={() => handleJoinChallenge(challenge.id)}>
+                                        Join
+                                    </button>
+                                    <div className="challenge-checkin">
+                                        <input
+                                            value={challengeNoteInputs[challenge.id] || ''}
+                                            onChange={(event) => handleChallengeNoteChange(challenge.id, event.target.value)}
+                                            placeholder="Check-in note"
+                                        />
+                                        <button onClick={() => handleCheckIn(challenge.id)}>Check in</button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </aside>
