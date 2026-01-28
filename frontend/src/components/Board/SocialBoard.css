@@ -81,6 +81,17 @@
     cursor: pointer;
 }
 
+.composer-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.board-auth-warning {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #ffd166;
+}
+
 .board-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;

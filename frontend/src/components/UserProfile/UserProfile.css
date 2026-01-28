@@ -259,6 +259,13 @@
   font-size: 0.9rem;
 }
 
+.login-error {
+  margin: 16px 0 0;
+  color: #ffd166;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
 .login-form input {
   width: 100%;
   padding: 12px;

@@ -18,7 +18,11 @@ router.get('/', requireAuth, async (req, res) => {
         take: 50,
         include: {
             author: { select: { id: true, displayName: true } },
-            comments: true,
+            comments: {
+                include: {
+                    author: { select: { id: true, displayName: true } }
+                }
+            },
             reactions: true
         }
     });
@@ -48,16 +52,31 @@ router.post('/:postId/reactions', requireAuth, async (req, res) => {
     const { postId } = req.params;
     const { type = 'like' } = req.body;
 
-    const reaction = await prisma.reaction.upsert({
+    const existing = await prisma.reaction.findUnique({
         where: {
             postId_userId_type: {
                 postId,
                 userId: req.user.sub,
                 type
             }
-        },
-        update: {},
-        create: {
+        }
+    });
+
+    if (existing) {
+        await prisma.reaction.delete({
+            where: {
+                postId_userId_type: {
+                    postId,
+                    userId: req.user.sub,
+                    type
+                }
+            }
+        });
+        return res.status(204).send();
+    }
+
+    const reaction = await prisma.reaction.create({
+        data: {
             postId,
             userId: req.user.sub,
             type
@@ -80,6 +99,9 @@ router.post('/:postId/comments', requireAuth, async (req, res) => {
             authorId: req.user.sub,
             content,
             parentId: parentId || null
+        },
+        include: {
+            author: { select: { id: true, displayName: true } }
         }
     });
 

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiRequest, getAuthTokens } from '../../utils/api';
 import './SocialBoard.css';
 
 const STORAGE_KEYS = {
-    posts: 'broverse_board_posts',
     friends: 'broverse_board_friends'
 };
 
@@ -49,7 +49,7 @@ function formatTimestamp(isoString) {
 
 export function SocialBoard() {
     const currentUser = useMemo(() => getCurrentUser(), []);
-    const [posts, setPosts] = useState(() => loadFromStorage(STORAGE_KEYS.posts, []));
+    const [posts, setPosts] = useState([]);
     const [friends, setFriends] = useState(() => loadFromStorage(STORAGE_KEYS.friends, []));
     const [composerText, setComposerText] = useState('');
     const [visibility, setVisibility] = useState('public');
@@ -57,14 +57,52 @@ export function SocialBoard() {
     const [friendName, setFriendName] = useState('');
     const [commentInputs, setCommentInputs] = useState({});
     const [statusMessage, setStatusMessage] = useState('');
-
-    useEffect(() => {
-        saveToStorage(STORAGE_KEYS.posts, posts);
-    }, [posts]);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthTokens()?.accessToken);
 
     useEffect(() => {
         saveToStorage(STORAGE_KEYS.friends, friends);
     }, [friends]);
+
+    useEffect(() => {
+        setIsAuthenticated(!!getAuthTokens()?.accessToken);
+    }, []);
+
+    const fetchPosts = async () => {
+        setIsLoading(true);
+        setErrorMessage('');
+        try {
+            const data = await apiRequest('/posts');
+            const normalized = data.map((post) => ({
+                id: post.id,
+                authorId: post.authorId,
+                authorName: post.author?.displayName || 'Brother',
+                content: post.content,
+                visibility: post.visibility,
+                createdAt: post.createdAt,
+                likes: post.reactions || [],
+                comments: (post.comments || []).map((comment) => ({
+                    id: comment.id,
+                    authorName: comment.author?.displayName || 'Brother',
+                    content: comment.content,
+                    createdAt: comment.createdAt
+                })),
+                shares: post.shares || 0
+            }));
+            setPosts(normalized);
+        } catch {
+            setErrorMessage('Unable to load posts. Log in to continue.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchPosts();
+        }
+    }, [isAuthenticated]);
 
     const filteredPosts = useMemo(() => {
         return posts.filter((post) => {
@@ -76,40 +114,36 @@ export function SocialBoard() {
         });
     }, [posts, filter, currentUser.id]);
 
-    const handleCreatePost = () => {
+    const handleCreatePost = async () => {
         if (!composerText.trim()) return;
-
-        const newPost = {
-            id: `post-${Date.now()}`,
-            authorId: currentUser.id,
-            authorName: currentUser.name,
-            content: composerText.trim(),
-            visibility,
-            createdAt: new Date().toISOString(),
-            likes: [],
-            comments: [],
-            shares: 0
-        };
-
-        setPosts((prev) => [newPost, ...prev]);
-        setComposerText('');
-        setStatusMessage('Post shared.');
+        try {
+            await apiRequest('/posts', {
+                method: 'POST',
+                body: {
+                    content: composerText.trim(),
+                    visibility
+                }
+            });
+            setComposerText('');
+            setStatusMessage('Post shared.');
+            fetchPosts();
+        } catch {
+            setStatusMessage('Unable to post yet.');
+        }
         setTimeout(() => setStatusMessage(''), 2000);
     };
 
-    const toggleLike = (postId) => {
-        setPosts((prev) =>
-            prev.map((post) => {
-                if (post.id !== postId) return post;
-                const hasLiked = post.likes.includes(currentUser.id);
-                return {
-                    ...post,
-                    likes: hasLiked
-                        ? post.likes.filter((id) => id !== currentUser.id)
-                        : [...post.likes, currentUser.id]
-                };
-            })
-        );
+    const toggleLike = async (postId) => {
+        try {
+            await apiRequest(`/posts/${postId}/reactions`, {
+                method: 'POST',
+                body: { type: 'like' }
+            });
+            fetchPosts();
+        } catch {
+            setStatusMessage('Unable to react right now.');
+            setTimeout(() => setStatusMessage(''), 2000);
+        }
     };
 
     const handleShare = async (postId) => {
@@ -132,27 +166,20 @@ export function SocialBoard() {
         setCommentInputs((prev) => ({ ...prev, [postId]: value }));
     };
 
-    const handleAddComment = (postId) => {
+    const handleAddComment = async (postId) => {
         const content = (commentInputs[postId] || '').trim();
         if (!content) return;
-
-        setPosts((prev) =>
-            prev.map((post) => {
-                if (post.id !== postId) return post;
-                const newComment = {
-                    id: `comment-${Date.now()}`,
-                    authorName: currentUser.name,
-                    content,
-                    createdAt: new Date().toISOString()
-                };
-                return {
-                    ...post,
-                    comments: [...post.comments, newComment]
-                };
-            })
-        );
-
-        setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
+        try {
+            await apiRequest(`/posts/${postId}/comments`, {
+                method: 'POST',
+                body: { content }
+            });
+            setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
+            fetchPosts();
+        } catch {
+            setStatusMessage('Unable to comment right now.');
+            setTimeout(() => setStatusMessage(''), 2000);
+        }
     };
 
     const handleAddFriend = () => {
@@ -192,8 +219,15 @@ export function SocialBoard() {
                     rows={3}
                 />
                 <div className="composer-actions">
-                    <button onClick={handleCreatePost}>Post</button>
+                    <button onClick={handleCreatePost} disabled={!isAuthenticated || isLoading}>
+                        {isAuthenticated ? 'Post' : 'Log in to post'}
+                    </button>
                 </div>
+                {!isAuthenticated && (
+                    <p className="board-auth-warning">
+                        Log in from the Profile page to post and react.
+                    </p>
+                )}
             </section>
 
             <div className="board-layout">
@@ -210,7 +244,15 @@ export function SocialBoard() {
                         ))}
                     </div>
 
-                    {filteredPosts.length === 0 && (
+                    {isLoading && (
+                        <div className="board-empty">Loading posts...</div>
+                    )}
+
+                    {errorMessage && (
+                        <div className="board-empty">{errorMessage}</div>
+                    )}
+
+                    {!isLoading && !errorMessage && filteredPosts.length === 0 && (
                         <div className="board-empty">
                             No posts yet. Be the first to share a win.
                         </div>

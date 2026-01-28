@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiRequest, clearAuthTokens, getApiBaseUrl, setAuthTokens } from '../../utils/api';
 import './UserProfile.css';
 
 // Helper to get initial state from localStorage
@@ -40,6 +41,7 @@ export function UserProfile({ onLogout }) {
 
   const handleLogout = () => {
     localStorage.removeItem('broverse_user');
+    clearAuthTokens();
     setUser(null);
     onLogout?.();
   };
@@ -137,31 +139,61 @@ function LoginForm({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [tagline, setTagline] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const user = {
-      id: Date.now(),
-      name: name || 'Brother',
-      email,
-      tagline: tagline || 'Building something real.',
-      createdAt: new Date().toISOString()
-    };
+    setError('');
 
-    localStorage.setItem('broverse_user', JSON.stringify(user));
-    
-    // Initialize stats for new user
-    if (!isLogin) {
-      localStorage.setItem('broverse_stats', JSON.stringify({
-        callsReceived: 0,
-        rostersCompleted: 0,
-        daysActive: 1
-      }));
+    const apiBase = getApiBaseUrl();
+    if (!apiBase) {
+      setError('API is not configured.');
+      return;
     }
 
-    onLogin(user);
+    setIsSubmitting(true);
+    try {
+      const payload = isLogin
+        ? { email, password }
+        : { email, password, displayName: name || 'Brother', tagline };
+
+      const response = await apiRequest(isLogin ? '/auth/login' : '/auth/register', {
+        method: 'POST',
+        auth: false,
+        body: payload
+      });
+
+      const user = {
+        id: response.user.id,
+        name: response.user.displayName,
+        email: response.user.email,
+        tagline: response.user.tagline || 'Building something real.'
+      };
+
+      setAuthTokens({
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken
+      });
+
+      localStorage.setItem('broverse_user', JSON.stringify(user));
+
+      if (!isLogin) {
+        localStorage.setItem('broverse_stats', JSON.stringify({
+          callsReceived: 0,
+          rostersCompleted: 0,
+          daysActive: 1
+        }));
+      }
+
+      onLogin(user);
+    } catch (err) {
+      setError('Login failed. Check your email and password.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -169,8 +201,8 @@ function LoginForm({ onLogin }) {
       <div className="login-form">
         <h2>{isLogin ? 'Welcome Back, Brother' : 'Join the BroVerse'}</h2>
         <p className="login-subtitle">
-          {isLogin 
-            ? 'You\'ve been called. Step back in.' 
+          {isLogin
+            ? 'You\'ve been called. Step back in.'
             : 'This isn\'t therapy. It\'s sacred construction.'}
         </p>
 
@@ -199,6 +231,17 @@ function LoginForm({ onLogin }) {
             />
           </div>
 
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Minimum 8 characters"
+              required
+            />
+          </div>
+
           {!isLogin && (
             <div className="form-group">
               <label>Your Tagline (optional)</label>
@@ -212,9 +255,11 @@ function LoginForm({ onLogin }) {
           )}
 
           <button type="submit" className="submit-btn">
-            {isLogin ? 'Enter the BroVerse' : 'Begin Your Journey'}
+            {isSubmitting ? 'Working...' : isLogin ? 'Enter the BroVerse' : 'Begin Your Journey'}
           </button>
         </form>
+
+        {error && <p className="login-error">{error}</p>}
 
         <p className="toggle-form">
           {isLogin ? "Don't have an account? " : 'Already a brother? '}
