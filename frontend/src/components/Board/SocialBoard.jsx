@@ -58,7 +58,10 @@ export function SocialBoard() {
     const [commentInputs, setCommentInputs] = useState({});
     const [statusMessage, setStatusMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [authNotice, setAuthNotice] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isPosting, setIsPosting] = useState(false);
+    const [isCommenting, setIsCommenting] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthTokens()?.accessToken);
     const [challenges, setChallenges] = useState([]);
     const [challengeTitle, setChallengeTitle] = useState('');
@@ -66,6 +69,7 @@ export function SocialBoard() {
     const [challengeType, setChallengeType] = useState('custom');
     const [challengeNoteInputs, setChallengeNoteInputs] = useState({});
     const [isLoadingChallenges, setIsLoadingChallenges] = useState(false);
+    const [challengeError, setChallengeError] = useState('');
 
     useEffect(() => {
         saveToStorage(STORAGE_KEYS.friends, friends);
@@ -75,9 +79,22 @@ export function SocialBoard() {
         setIsAuthenticated(!!getAuthTokens()?.accessToken);
     }, []);
 
+    useEffect(() => {
+        const handleAuthExpired = () => {
+            setIsAuthenticated(false);
+            setErrorMessage('Session expired. Log in again to see the board.');
+            setAuthNotice('Session expired. Please log in again.');
+            setChallenges([]);
+        };
+
+        window.addEventListener('broverse:auth:expired', handleAuthExpired);
+        return () => window.removeEventListener('broverse:auth:expired', handleAuthExpired);
+    }, []);
+
     const fetchPosts = async () => {
         setIsLoading(true);
         setErrorMessage('');
+        setAuthNotice('');
         try {
             const data = await apiRequest('/posts');
             const normalized = data.map((post) => ({
@@ -97,8 +114,14 @@ export function SocialBoard() {
                 shares: post.shares || 0
             }));
             setPosts(normalized);
-        } catch {
-            setErrorMessage('Unable to load posts. Log in to continue.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setIsAuthenticated(false);
+                setErrorMessage('Session expired. Log in again to load posts.');
+                setAuthNotice('Session expired. Please log in again.');
+            } else {
+                setErrorMessage('Unable to load posts right now.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -113,11 +136,19 @@ export function SocialBoard() {
 
     const fetchChallenges = async () => {
         setIsLoadingChallenges(true);
+        setChallengeError('');
         try {
             const data = await apiRequest('/challenges');
             setChallenges(data);
-        } catch {
+        } catch (err) {
             setChallenges([]);
+            if (err?.status === 401) {
+                setIsAuthenticated(false);
+                setChallengeError('Session expired. Log in again to view challenges.');
+                setAuthNotice('Session expired. Please log in again.');
+            } else {
+                setChallengeError('Unable to load challenges right now.');
+            }
         } finally {
             setIsLoadingChallenges(false);
         }
@@ -135,6 +166,7 @@ export function SocialBoard() {
 
     const handleCreatePost = async () => {
         if (!composerText.trim()) return;
+        setIsPosting(true);
         try {
             await apiRequest('/posts', {
                 method: 'POST',
@@ -146,8 +178,15 @@ export function SocialBoard() {
             setComposerText('');
             setStatusMessage('Post shared.');
             fetchPosts();
-        } catch {
-            setStatusMessage('Unable to post yet.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setStatusMessage('Session expired. Log in again to post.');
+                setIsAuthenticated(false);
+            } else {
+                setStatusMessage('Unable to post yet.');
+            }
+        } finally {
+            setIsPosting(false);
         }
         setTimeout(() => setStatusMessage(''), 2000);
     };
@@ -188,6 +227,7 @@ export function SocialBoard() {
     const handleAddComment = async (postId) => {
         const content = (commentInputs[postId] || '').trim();
         if (!content) return;
+        setIsCommenting(true);
         try {
             await apiRequest(`/posts/${postId}/comments`, {
                 method: 'POST',
@@ -195,9 +235,16 @@ export function SocialBoard() {
             });
             setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
             fetchPosts();
-        } catch {
-            setStatusMessage('Unable to comment right now.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setStatusMessage('Session expired. Log in again to comment.');
+                setIsAuthenticated(false);
+            } else {
+                setStatusMessage('Unable to comment right now.');
+            }
             setTimeout(() => setStatusMessage(''), 2000);
+        } finally {
+            setIsCommenting(false);
         }
     };
 
@@ -227,8 +274,13 @@ export function SocialBoard() {
             setChallengeDescription('');
             setStatusMessage('Challenge created.');
             fetchChallenges();
-        } catch {
-            setStatusMessage('Unable to create challenge.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setStatusMessage('Session expired. Log in again to create challenges.');
+                setIsAuthenticated(false);
+            } else {
+                setStatusMessage('Unable to create challenge.');
+            }
         }
         setTimeout(() => setStatusMessage(''), 2000);
     };
@@ -240,8 +292,13 @@ export function SocialBoard() {
             });
             setStatusMessage('Challenge joined.');
             fetchChallenges();
-        } catch {
-            setStatusMessage('Unable to join challenge.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setStatusMessage('Session expired. Log in again to join.');
+                setIsAuthenticated(false);
+            } else {
+                setStatusMessage('Unable to join challenge.');
+            }
         }
         setTimeout(() => setStatusMessage(''), 2000);
     };
@@ -259,8 +316,13 @@ export function SocialBoard() {
             });
             setChallengeNoteInputs((prev) => ({ ...prev, [challengeId]: '' }));
             setStatusMessage('Check-in logged.');
-        } catch {
-            setStatusMessage('Unable to check in. Join first.');
+        } catch (err) {
+            if (err?.status === 401) {
+                setStatusMessage('Session expired. Log in again to check in.');
+                setIsAuthenticated(false);
+            } else {
+                setStatusMessage('Unable to check in. Join first.');
+            }
         }
         setTimeout(() => setStatusMessage(''), 2000);
     };
@@ -274,6 +336,12 @@ export function SocialBoard() {
                 </div>
                 <div className="board-status">{statusMessage}</div>
             </header>
+
+            {authNotice && (
+                <div className="board-banner">
+                    {authNotice}
+                </div>
+            )}
 
             <section className="board-composer">
                 <div className="composer-header">
@@ -291,8 +359,8 @@ export function SocialBoard() {
                     rows={3}
                 />
                 <div className="composer-actions">
-                    <button onClick={handleCreatePost} disabled={!isAuthenticated || isLoading}>
-                        {isAuthenticated ? 'Post' : 'Log in to post'}
+                    <button onClick={handleCreatePost} disabled={!isAuthenticated || isLoading || isPosting}>
+                        {isAuthenticated ? (isPosting ? 'Posting...' : 'Post') : 'Log in to post'}
                     </button>
                 </div>
                 {!isAuthenticated && (
@@ -321,7 +389,14 @@ export function SocialBoard() {
                     )}
 
                     {errorMessage && (
-                        <div className="board-empty">{errorMessage}</div>
+                        <div className="board-empty">
+                            {errorMessage}
+                            {isAuthenticated && (
+                                <button className="board-retry" onClick={fetchPosts}>
+                                    Retry
+                                </button>
+                            )}
+                        </div>
                     )}
 
                     {!isLoading && !errorMessage && filteredPosts.length === 0 && (
@@ -366,8 +441,14 @@ export function SocialBoard() {
                                     value={commentInputs[post.id] || ''}
                                     onChange={(event) => handleCommentChange(post.id, event.target.value)}
                                     placeholder="Add a comment..."
+                                    disabled={!isAuthenticated || isCommenting}
                                 />
-                                <button onClick={() => handleAddComment(post.id)}>Send</button>
+                                <button
+                                    onClick={() => handleAddComment(post.id)}
+                                    disabled={!isAuthenticated || isCommenting}
+                                >
+                                    {isCommenting ? 'Sending...' : 'Send'}
+                                </button>
                             </div>
                         </article>
                     ))}
@@ -389,6 +470,9 @@ export function SocialBoard() {
                             {friends.map((friend) => (
                                 <li key={friend.id}>{friend.name}</li>
                             ))}
+                            {friends.length === 0 && (
+                                <li className="friend-empty">No brothers yet.</li>
+                            )}
                         </ul>
                     </div>
 
@@ -419,14 +503,25 @@ export function SocialBoard() {
                                 <option value="30_day">30-Day</option>
                                 <option value="custom">Custom</option>
                             </select>
-                            <button onClick={handleCreateChallenge} disabled={!isAuthenticated}>
-                                Create Challenge
+                            <button onClick={handleCreateChallenge} disabled={!isAuthenticated || isLoadingChallenges}>
+                                {isLoadingChallenges ? 'Working...' : 'Create Challenge'}
                             </button>
                         </div>
 
                         {isLoadingChallenges && <p className="challenge-loading">Loading challenges...</p>}
 
-                        {!isLoadingChallenges && challenges.length === 0 && (
+                        {challengeError && !isLoadingChallenges && (
+                            <p className="challenge-loading">
+                                {challengeError}
+                                {isAuthenticated && (
+                                    <button className="board-retry" onClick={fetchChallenges}>
+                                        Retry
+                                    </button>
+                                )}
+                            </p>
+                        )}
+
+                        {!isLoadingChallenges && !challengeError && challenges.length === 0 && (
                             <p className="challenge-loading">No active challenges yet.</p>
                         )}
 
@@ -437,7 +532,7 @@ export function SocialBoard() {
                                         <strong>{challenge.title}</strong>
                                         <span>{challenge.description}</span>
                                     </div>
-                                    <button onClick={() => handleJoinChallenge(challenge.id)}>
+                                    <button onClick={() => handleJoinChallenge(challenge.id)} disabled={!isAuthenticated}>
                                         Join
                                     </button>
                                     <div className="challenge-checkin">
@@ -445,8 +540,11 @@ export function SocialBoard() {
                                             value={challengeNoteInputs[challenge.id] || ''}
                                             onChange={(event) => handleChallengeNoteChange(challenge.id, event.target.value)}
                                             placeholder="Check-in note"
+                                            disabled={!isAuthenticated}
                                         />
-                                        <button onClick={() => handleCheckIn(challenge.id)}>Check in</button>
+                                        <button onClick={() => handleCheckIn(challenge.id)} disabled={!isAuthenticated}>
+                                            Check in
+                                        </button>
                                     </div>
                                 </div>
                             ))}

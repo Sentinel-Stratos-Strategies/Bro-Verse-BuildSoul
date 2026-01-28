@@ -42,8 +42,29 @@ export async function apiRequest(path, options = {}) {
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Request failed');
+        let message = 'Request failed';
+        const contentType = response.headers.get('content-type') || '';
+        try {
+            if (contentType.includes('application/json')) {
+                const data = await response.json();
+                message = data?.error || data?.message || message;
+            } else {
+                const text = await response.text();
+                message = text || message;
+            }
+        } catch {
+            // ignore parsing errors
+        }
+
+        if (response.status === 401 && auth) {
+            clearAuthTokens();
+            localStorage.removeItem('broverse_user');
+            window.dispatchEvent(new CustomEvent('broverse:auth:expired'));
+        }
+
+        const error = new Error(message);
+        error.status = response.status;
+        throw error;
     }
 
     if (response.status === 204) return null;

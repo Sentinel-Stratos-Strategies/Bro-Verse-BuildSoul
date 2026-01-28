@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiRequest, clearAuthTokens, getApiBaseUrl, setAuthTokens } from '../../utils/api';
 import './UserProfile.css';
 
@@ -31,6 +31,18 @@ export function UserProfile({ onLogout }) {
   const [roster] = useState(initialState.roster);
   const [rosterExpiry] = useState(initialState.rosterExpiry);
   const [stats] = useState(initialState.stats);
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      localStorage.removeItem('broverse_user');
+      clearAuthTokens();
+      setUser(null);
+      onLogout?.();
+    };
+
+    window.addEventListener('broverse:auth:expired', handleAuthExpired);
+    return () => window.removeEventListener('broverse:auth:expired', handleAuthExpired);
+  }, [onLogout]);
 
   const getDaysRemaining = () => {
     if (!rosterExpiry) return 0;

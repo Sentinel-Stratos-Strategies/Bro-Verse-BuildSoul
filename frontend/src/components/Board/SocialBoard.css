@@ -27,6 +27,15 @@
     font-weight: 600;
 }
 
+.board-banner {
+    background: rgba(255, 209, 102, 0.1);
+    border: 1px solid rgba(255, 209, 102, 0.25);
+    color: #ffd166;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
 .board-composer {
     background: rgba(20, 25, 40, 0.8);
     border-radius: 16px;
@@ -131,6 +140,16 @@
     background: rgba(20, 25, 40, 0.6);
     text-align: center;
     color: #b5b8c8;
+}
+
+.board-retry {
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
 }
 
 .board-post {
@@ -285,6 +304,11 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.friend-empty {
+    color: #98a2b3;
+    font-size: 0.85rem;
 }
 
 .challenge-preview {
