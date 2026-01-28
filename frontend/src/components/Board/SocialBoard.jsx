@@ -47,6 +47,51 @@ function formatTimestamp(isoString) {
     });
 }
 
+const demoPosts = [
+    {
+        id: 'demo-1',
+        authorId: 'demo-user',
+        authorName: 'BroVerse Team',
+        content: 'Welcome to the Board. Log in to post wins and react to your brothers.',
+        visibility: 'public',
+        createdAt: new Date().toISOString(),
+        likes: [{ id: 'like-1' }],
+        comments: [
+            {
+                id: 'comment-1',
+                authorName: 'Coach',
+                content: 'Daily check-ins keep the momentum alive.',
+                createdAt: new Date().toISOString()
+            }
+        ],
+        shares: 1
+    },
+    {
+        id: 'demo-2',
+        authorId: 'demo-user-2',
+        authorName: 'Accountability Circle',
+        content: 'Try the Challenges panel to join or create a mission.',
+        visibility: 'public',
+        createdAt: new Date().toISOString(),
+        likes: [],
+        comments: [],
+        shares: 0
+    }
+];
+
+const demoChallenges = [
+    {
+        id: 'demo-challenge-1',
+        title: 'Hydrate Week',
+        description: 'Drink 2L water every day this week.'
+    },
+    {
+        id: 'demo-challenge-2',
+        title: '5AM Rise',
+        description: 'Wake before 5:30am for five straight days.'
+    }
+];
+
 export function SocialBoard() {
     const currentUser = useMemo(() => getCurrentUser(), []);
     const [posts, setPosts] = useState([]);
@@ -163,6 +208,9 @@ export function SocialBoard() {
             return true;
         });
     }, [posts, filter, currentUser.id]);
+
+    const displayPosts = isAuthenticated ? filteredPosts : demoPosts;
+    const displayChallenges = isAuthenticated ? challenges : demoChallenges;
 
     const handleCreatePost = async () => {
         if (!composerText.trim()) return;
@@ -337,9 +385,9 @@ export function SocialBoard() {
                 <div className="board-status">{statusMessage}</div>
             </header>
 
-            {authNotice && (
+            {(authNotice || !isAuthenticated) && (
                 <div className="board-banner">
-                    {authNotice}
+                    {authNotice || 'You are viewing a demo feed. Log in to post, comment, and join challenges.'}
                 </div>
             )}
 
@@ -399,13 +447,13 @@ export function SocialBoard() {
                         </div>
                     )}
 
-                    {!isLoading && !errorMessage && filteredPosts.length === 0 && (
+                    {!isLoading && !errorMessage && displayPosts.length === 0 && (
                         <div className="board-empty">
                             No posts yet. Be the first to share a win.
                         </div>
                     )}
 
-                    {filteredPosts.map((post) => (
+                    {displayPosts.map((post) => (
                         <article key={post.id} id={post.id} className="board-post">
                             <div className="post-header">
                                 <div>
@@ -419,10 +467,12 @@ export function SocialBoard() {
                             <p className="post-content">{post.content}</p>
 
                             <div className="post-actions">
-                                <button onClick={() => toggleLike(post.id)}>
+                                <button onClick={() => toggleLike(post.id)} disabled={!isAuthenticated}>
                                     ❤️ {post.likes.length}
                                 </button>
-                                <button onClick={() => handleShare(post.id)}>🔁 {post.shares}</button>
+                                <button onClick={() => handleShare(post.id)} disabled={!isAuthenticated}>
+                                    🔁 {post.shares}
+                                </button>
                                 <span>{post.comments.length} comments</span>
                             </div>
 
@@ -521,12 +571,12 @@ export function SocialBoard() {
                             </p>
                         )}
 
-                        {!isLoadingChallenges && !challengeError && challenges.length === 0 && (
+                        {!isLoadingChallenges && !challengeError && displayChallenges.length === 0 && (
                             <p className="challenge-loading">No active challenges yet.</p>
                         )}
 
                         <div className="challenge-list">
-                            {challenges.map((challenge) => (
+                            {displayChallenges.map((challenge) => (
                                 <div key={challenge.id} className="challenge-item">
                                     <div>
                                         <strong>{challenge.title}</strong>
