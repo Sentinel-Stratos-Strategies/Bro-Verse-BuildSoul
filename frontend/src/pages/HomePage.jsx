@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { CharacterSelection } from '../components/CharacterSelection';
-import { usePageViewTracking, useComponentTracking, trackUserAction } from '../telemetry';
 import characters from '../data/characters.json';
 import './HomePage.css';
 
@@ -10,21 +9,11 @@ import './HomePage.css';
  */
 export function HomePage({ onNavigate }) {
   const [showSelection, setShowSelection] = useState(false);
-  
-  // Track page views and component lifecycle
-  usePageViewTracking('HomePage')
-  useComponentTracking('HomePage')
 
   const handleSelectionComplete = (roster) => {
     console.log('Roster locked:', roster);
-    trackUserAction('roster_complete', 'HomePage', { rosterSize: roster.length })
     onNavigate?.('dashboard');
   };
-
-  const handleBuildRoster = () => {
-    trackUserAction('click', 'build-roster-button')
-    setShowSelection(true)
-  }
 
   if (showSelection) {
     return (
@@ -48,7 +37,7 @@ export function HomePage({ onNavigate }) {
         
         <button 
           className="cta-button"
-          onClick={handleBuildRoster}
+          onClick={() => setShowSelection(true)}
         >
           Build Your Roster
         </button>
