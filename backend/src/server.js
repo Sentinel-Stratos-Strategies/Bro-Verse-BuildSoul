@@ -1,3 +1,4 @@
+import './tracing.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -6,6 +7,7 @@ import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import challengeRoutes from './routes/challenges.js';
 import notificationRoutes from './routes/notifications.js';
+import uploadRoutes from './routes/uploads.js';
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 app.use('/challenges', challengeRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/uploads', uploadRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
