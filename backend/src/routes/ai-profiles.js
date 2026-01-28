@@ -140,27 +140,81 @@ router.post('/:userId/personas/:personaId/chat', requireAuth, async (req, res) =
             return res.status(400).json({ error: 'message required' });
         }
 
+        // Get persona info
+        const profile = await getOrCreateProfile(userId);
+        const persona = profile.personas.find(p => p.id === personaId);
+
+        if (!persona) {
+            return res.status(404).json({ error: 'Persona not found' });
+        }
+
+        // Build bot service URL
+        const personaSlug = persona.name.toLowerCase().replace(/\s+/g, '-');
+        const botServiceUrl = process.env[`BOT_SERVICE_${personaSlug.toUpperCase().replace(/-/g, '_')}_URL`] 
+            || `https://broverse-bot-${personaSlug}.${process.env.CONTAINER_APPS_DOMAIN || 'internal'}`;
+
+        console.log(`🤖 Routing chat to bot service: ${botServiceUrl}`);
+
+        // Get recent conversation history (last 10 messages)
+        const recentHistory = persona.conversationHistory.slice(-10).map(msg => ({
+            role: msg.role,
+            content: msg.content
+        }));
+
+        // Call bot service
+        let botResponse;
+        try {
+            const response = await fetch(`${botServiceUrl}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    message,
+                    conversationHistory: recentHistory
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error(`❌ Bot service error (${response.status}):`, errorData);
+                throw new Error(`Bot service returned ${response.status}: ${errorData}`);
+            }
+
+            botResponse = await response.json();
+            console.log(`✅ Bot service response received (${botResponse.response.length} chars)`);
+
+        } catch (botError) {
+            console.error('❌ Failed to call bot service:', botError.message);
+            
+            // Fallback to mock response if bot service unavailable
+            botResponse = {
+                response: `[${persona.name}] I'm currently offline for maintenance. Please try again in a few minutes.`,
+                model: 'fallback',
+                error: botError.message
+            };
+        }
+
         // Add user message
         await addMessage(userId, personaId, 'user', message);
 
-        // TODO: Call bot service (container) to get AI response
-        // For now, return mock response
-        const mockResponse = `[${personaId}] I received your message: "${message}". Bot service integration coming in Phase 5!`;
-
         // Add assistant response
-        const updated = await addMessage(userId, personaId, 'assistant', mockResponse);
+        const updated = await addMessage(userId, personaId, 'assistant', botResponse.response);
 
-        const persona = updated.personas.find(p => p.id === personaId);
+        const updatedPersona = updated.personas.find(p => p.id === personaId);
 
         res.json({
             success: true,
             persona: {
-                id: persona.id,
-                name: persona.name,
-                conversationHistory: persona.conversationHistory,
-                metadata: persona.metadata,
+                id: updatedPersona.id,
+                name: updatedPersona.name,
+                conversationHistory: updatedPersona.conversationHistory,
+                metadata: updatedPersona.metadata,
             },
-            response: mockResponse,
+            response: botResponse.response,
+            model: botResponse.model,
+            usage: botResponse.usage,
         });
     } catch (error) {
         console.error('Chat error:', error);
