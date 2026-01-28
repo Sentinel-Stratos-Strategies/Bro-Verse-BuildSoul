@@ -7,28 +7,37 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ERROR);
 
-const serviceName = process.env.OTEL_SERVICE_NAME || 'broverse-backend';
-const exporterUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318/v1/traces';
+// Only initialize tracing if endpoint is configured
+const exporterUrl = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
-const sdk = new NodeSDK({
-    resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: serviceName
-    }),
-    traceExporter: new OTLPTraceExporter({ url: exporterUrl }),
-    instrumentations: [getNodeAutoInstrumentations()]
-});
+if (exporterUrl) {
+    const serviceName = process.env.OTEL_SERVICE_NAME || 'broverse-backend';
 
-sdk.start().catch((error) => {
-    console.error('Tracing initialization error', error);
-});
+    const sdk = new NodeSDK({
+        resource: new Resource({
+            [SemanticResourceAttributes.SERVICE_NAME]: serviceName
+        }),
+        traceExporter: new OTLPTraceExporter({ url: exporterUrl }),
+        instrumentations: [getNodeAutoInstrumentations()]
+    });
 
-const shutdown = async () => {
-    try {
-        await sdk.shutdown();
-    } catch (error) {
-        console.error('Tracing shutdown error', error);
-    }
-};
+    sdk.start().catch((error) => {
+        console.error('Tracing initialization error', error);
+    });
+
+    const shutdown = async () => {
+        try {
+            await sdk.shutdown();
+        } catch (error) {
+            console.error('Tracing shutdown error', error);
+        }
+    };
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+} else {
+    console.log('[INFO] OpenTelemetry tracing disabled - OTEL_EXPORTER_OTLP_ENDPOINT not set');
+}
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
