@@ -43,4 +43,4 @@ jobs:
           skip_app_build: false
         env:
           VITE_APPINSIGHTS_CONNECTION_STRING: ${{ secrets.VITE_APPINSIGHTS_CONNECTION_STRING }}
-          NODE_VERSION: 20.19.0
+          NODE_VERSION: 20.20.0
