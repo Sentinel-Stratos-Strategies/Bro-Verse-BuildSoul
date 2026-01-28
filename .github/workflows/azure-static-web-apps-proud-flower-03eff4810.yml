@@ -1,4 +1,4 @@
-name: Azure Static Web Apps - proud-flower-03eff4810
+name: BroVerse SWA Frontend
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 
 permissions:
   contents: read
-  pull_requests: write
+  pull-requests: write
 
 jobs:
   build_and_deploy_job:
