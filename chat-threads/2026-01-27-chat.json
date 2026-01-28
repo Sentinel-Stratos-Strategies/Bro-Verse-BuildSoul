@@ -1,0 +1,205 @@
+{
+    "version": 3,
+    "responderUsername": "GitHub Copilot",
+    "responderAvatarIconUri": {
+        "id": "copilot"
+    },
+    "initialLocation": "panel",
+    "requests": [
+        {
+            "requestId": "request_19fc2e93-a11f-4d6d-adcf-781846764c13",
+            "message": {
+                "parts": [
+                    {
+                        "range": {
+                            "start": 0,
+                            "endExclusive": 180
+                        },
+                        "editorRange": {
+                            "startLineNumber": 1,
+                            "startColumn": 1,
+                            "endLineNumber": 1,
+                            "endColumn": 181
+                        },
+                        "text": "in the broverse repo i have worked all day can you go to the terminal and help me find the chat thread from today its not a cloud version either we worked in terminal all damn day ",
+                        "kind": "text"
+                    }
+                ],
+                "text": "in the broverse repo i have worked all day can you go to the terminal and help me find the chat thread from today its not a cloud version either we worked in terminal all damn day "
+            },
+            "variableData": {
+                "variables": [
+                    {
+                        "value": "Repository name: Bro-Verse-BuildSoul\nOwner: Sentinel-Stratos-Strategies\nCurrent branch: main\nDefault branch: main",
+                        "name": "Sentinel-Stratos-Strategies/Bro-Verse-BuildSoul",
+                        "modelDescription": "Information about the current repository. You can use this information when you need to calculate diffs or compare changes with the default branch",
+                        "id": "Sentinel-Stratos-Strategies/Bro-Verse-BuildSoul",
+                        "kind": "workspace"
+                    },
+                    {
+                        "id": "vscode.prompt.instructions.root__vscode-userdata:/Users/house/Library/Application%20Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                        "name": "prompt:azurecosmosdb.instructions.md",
+                        "value": {
+                            "$mid": 1,
+                            "external": "vscode-userdata:/Users/house/Library/Application%20Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                            "path": "/Users/house/Library/Application Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                            "scheme": "vscode-userdata"
+                        },
+                        "kind": "promptFile",
+                        "modelDescription": "Prompt instructions file",
+                        "isRoot": true,
+                        "originLabel": "Automatically attached as pattern is **",
+                        "automaticallyAdded": true
+                    },
+                    {
+                        "id": "vscode.prompt.instructions.text",
+                        "name": "prompt:instructionsList",
+                        "value": "<instructions>\nHere is a list of instruction files that contain rules for modifying or creating new code.\nThese files are important for ensuring that the code is modified or created correctly.\nPlease make sure to follow the rules specified in these files when working with the codebase.\nIf the file is not already available as attachment, use the #tool:readFile tool to acquire it.\nMake sure to acquire the instructions before making any changes to the code.\n<instruction>\n<file>vscode-userdata:/Users/house/Library/Application%20Support/Code/User/prompts/azurecosmosdb.instructions.md</file>\n<applyTo>**</applyTo>\n</instruction>\n<instruction>\n<description>**CRITICAL**: Read this file FIRST before answering ANY Azure-related questions or performing ANY Azure operations. This file must be loaded as context whenever Azure is explicitly mentioned. It provides accurate and up-to-date information about Azure. **MUST** be read when user mentions: Azure, Azure Functions, AWS Lambda to Azure Functions migration, Azure Static Web App, or any specific Azure service name. Load this instruction file ONLY for Azure-related requests, NOT for generic cloud or deployment questions.</description>\n<file>/Users/house/.vscode/extensions/ms-azuretools.vscode-azure-github-copilot-1.0.153-darwin-arm64/resources/azureRules/azure.instructions.md</file>\n</instruction>\n</instructions>\n\n\n<skills>\nHere is a list of skills that contain domain specific knowledge on a variety of topics.\nEach skill comes with a description of the topic and a file path that contains the detailed instructions.\nWhen a user asks you to perform a task that falls within the domain of a skill, use the #tool:readFile tool to acquire the full instructions from the file URI.\n<skill>\n<name>agent-workflow-builder_ai_toolkit</name>\n<description>Expert in streamlining and enhancing the development of AI Agent Applications, including AI app / agent / workflow code generation, AI model comparison and recommendation, tracing setup, and evaluation planning / setup / execution.</description>\n<file>/Users/house/.copilot/skills/agent-workflow-builder_ai_toolkit/SKILL.md</file>\n</skill>\n</skills>\n\n",
+                        "kind": "promptText",
+                        "modelDescription": "Prompt instructions list",
+                        "automaticallyAdded": true,
+                        "toolReferences": [
+                            {
+                                "kind": "tool",
+                                "id": "copilot_readFile",
+                                "name": "Read File",
+                                "range": {
+                                    "start": 347,
+                                    "endExclusive": 361
+                                }
+                            },
+                            {
+                                "kind": "tool",
+                                "id": "copilot_readFile",
+                                "name": "Read File",
+                                "range": {
+                                    "start": 1666,
+                                    "endExclusive": 1680
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "response": [
+                {
+                    "kind": "mcpServersStarting",
+                    "didStartServerIds": []
+                }
+            ],
+            "agent": {
+                "extensionId": {
+                    "value": "GitHub.copilot-chat",
+                    "_lower": "github.copilot-chat"
+                },
+                "extensionVersion": "0.36.2",
+                "publisherDisplayName": "GitHub",
+                "extensionPublisherId": "GitHub",
+                "extensionDisplayName": "GitHub Copilot Chat",
+                "id": "github.copilot.editsAgent",
+                "description": "Edit files in your workspace in agent mode",
+                "when": "config.chat.agent.enabled",
+                "metadata": {
+                    "themeIcon": {
+                        "id": "tools"
+                    },
+                    "hasFollowups": false,
+                    "supportIssueReporting": false
+                },
+                "name": "agent",
+                "fullName": "GitHub Copilot",
+                "isDefault": true,
+                "locations": [
+                    "panel"
+                ],
+                "modes": [
+                    "agent"
+                ],
+                "slashCommands": [],
+                "disambiguation": []
+            },
+            "timestamp": 1769576604496,
+            "modelId": "copilot/gpt-5.2-codex",
+            "responseId": "response_46975ffc-bb6b-4b80-afb5-17c5fb4fe175",
+            "modelState": {
+                "value": 2,
+                "completedAt": 1769576609011
+            },
+            "contentReferences": [
+                {
+                    "kind": "reference",
+                    "reference": {
+                        "$mid": 1,
+                        "fsPath": "/Users/house/Library/Application Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                        "external": "vscode-userdata:/Users/house/Library/Application%20Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                        "path": "/Users/house/Library/Application Support/Code/User/prompts/azurecosmosdb.instructions.md",
+                        "scheme": "vscode-userdata"
+                    }
+                }
+            ],
+            "codeCitations": [],
+            "timeSpentWaiting": 0
+        }
+    ],
+    "sessionId": "1e6a9405-e759-48d5-8f4d-1ec8635f7967",
+    "creationDate": 1769576226129,
+    "lastMessageDate": 1769576604496,
+    "customTitle": "Finding today's chat thread in terminal",
+    "hasPendingEdits": false,
+    "inputState": {
+        "contrib": {
+            "chatDynamicVariableModel": []
+        },
+        "attachments": [],
+        "mode": {
+            "id": "file:///Users/house/.vscode/extensions/ms-windows-ai-studio.windows-ai-studio-0.28.2-darwin-arm64/resources/lmt/chatAgents/AIAgentExpert.agent.md",
+            "kind": "agent"
+        },
+        "selectedModel": {
+            "identifier": "copilot/gpt-5.2-codex",
+            "metadata": {
+                "extension": {
+                    "value": "GitHub.copilot-chat",
+                    "_lower": "github.copilot-chat"
+                },
+                "id": "gpt-5.2-codex",
+                "vendor": "copilot",
+                "name": "GPT-5.2-Codex",
+                "family": "gpt-5.2-codex",
+                "detail": "1x",
+                "tooltip": "GPT-5.2-Codex (gpt-5.2-codex) is counted at a 1x rate.",
+                "version": "gpt-5.2-codex",
+                "maxInputTokens": 271805,
+                "maxOutputTokens": 128000,
+                "auth": {
+                    "providerLabel": "GitHub Copilot Chat",
+                    "accountLabel": "joeathan"
+                },
+                "isDefault": false,
+                "isUserSelectable": true,
+                "modelPickerCategory": {
+                    "label": "Premium Models",
+                    "order": 1
+                },
+                "capabilities": {
+                    "vision": true,
+                    "toolCalling": true,
+                    "agentMode": true
+                }
+            }
+        },
+        "inputText": "",
+        "selections": [
+            {
+                "startLineNumber": 1,
+                "startColumn": 1,
+                "endLineNumber": 1,
+                "endColumn": 1,
+                "selectionStartLineNumber": 1,
+                "selectionStartColumn": 1,
+                "positionLineNumber": 1,
+                "positionColumn": 1
+            }
+        ]
+    }
+}

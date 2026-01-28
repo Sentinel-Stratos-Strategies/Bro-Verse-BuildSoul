@@ -150,7 +150,7 @@ router.post('/:userId/personas/:personaId/chat', requireAuth, async (req, res) =
 
         // Build bot service URL
         const personaSlug = persona.name.toLowerCase().replace(/\s+/g, '-');
-        const botServiceUrl = process.env[`BOT_SERVICE_${personaSlug.toUpperCase().replace(/-/g, '_')}_URL`] 
+        const botServiceUrl = process.env[`BOT_SERVICE_${personaSlug.toUpperCase().replace(/-/g, '_')}_URL`]
             || `https://broverse-bot-${personaSlug}.${process.env.CONTAINER_APPS_DOMAIN || 'internal'}`;
 
         console.log(`🤖 Routing chat to bot service: ${botServiceUrl}`);
@@ -187,7 +187,7 @@ router.post('/:userId/personas/:personaId/chat', requireAuth, async (req, res) =
 
         } catch (botError) {
             console.error('❌ Failed to call bot service:', botError.message);
-            
+
             // Fallback to mock response if bot service unavailable
             botResponse = {
                 response: `[${persona.name}] I'm currently offline for maintenance. Please try again in a few minutes.`,
