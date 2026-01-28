@@ -1,0 +1,15 @@
+{
+    "navigationFallback": {
+        "rewrite": "/index.html",
+        "exclude": [
+            "/*.css",
+            "/*.js",
+            "/*.map",
+            "/*.json",
+            "/assets/*",
+            "/favicon.*",
+            "/robots.txt",
+            "/manifest.*"
+        ]
+    }
+}
