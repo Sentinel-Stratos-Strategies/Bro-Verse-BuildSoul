@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { apiRequest, getAuthTokens } from '../../utils/api';
+import { apiRequest, getApiBaseUrl, getAuthTokens } from '../../utils/api';
 import './SocialBoard.css';
 
 const STORAGE_KEYS = {
@@ -118,6 +118,7 @@ export function SocialBoard() {
     const [notifications, setNotifications] = useState([]);
     const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
     const [notificationError, setNotificationError] = useState('');
+    const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
 
     useEffect(() => {
         saveToStorage(STORAGE_KEYS.friends, friends);
@@ -185,12 +186,47 @@ export function SocialBoard() {
 
     useEffect(() => {
         if (!isAuthenticated) return;
+        if (!('EventSource' in window)) return;
+
+        const tokens = getAuthTokens();
+        const accessToken = tokens?.accessToken;
+        if (!accessToken) return;
+
+        const streamUrl = `${getApiBaseUrl()}/notifications/stream?token=${encodeURIComponent(accessToken)}`;
+        const source = new EventSource(streamUrl);
+
+        source.onopen = () => setIsRealtimeConnected(true);
+        source.onmessage = (event) => {
+            try {
+                const payload = JSON.parse(event.data || '{}');
+                if (payload.type === 'snapshot') {
+                    setNotifications(payload.notifications || []);
+                } else if (payload.type === 'notification' && payload.notification) {
+                    setNotifications((prev) => [payload.notification, ...prev]);
+                }
+            } catch {
+                // ignore malformed messages
+            }
+        };
+
+        source.onerror = () => {
+            setIsRealtimeConnected(false);
+            source.close();
+        };
+
+        return () => source.close();
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
         const interval = setInterval(() => {
-            fetchNotifications();
-        }, 30000);
+            if (!isRealtimeConnected) {
+                fetchNotifications();
+            }
+        }, 45000);
 
         return () => clearInterval(interval);
-    }, [isAuthenticated]);
+    }, [isAuthenticated, isRealtimeConnected]);
 
     const fetchChallenges = async () => {
         setIsLoadingChallenges(true);
@@ -550,7 +586,7 @@ export function SocialBoard() {
 
                 <aside className="board-sidebar">
                     <div className="sidebar-card">
-                        <h3>Notifications</h3>
+                        <h3>Notifications {isRealtimeConnected && <span className="realtime-pill">Live</span>}</h3>
                         {!isAuthenticated && (
                             <p className="challenge-loading">Log in to see updates.</p>
                         )}

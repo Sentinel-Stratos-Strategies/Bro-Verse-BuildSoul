@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { prisma } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendNotification } from '../utils/notificationsHub.js';
 
 const router = express.Router();
 
@@ -89,7 +90,7 @@ router.post('/:postId/reactions', requireAuth, async (req, res) => {
     });
 
     if (post && post.authorId !== req.user.sub) {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 recipientId: post.authorId,
                 actorId: req.user.sub,
@@ -97,8 +98,12 @@ router.post('/:postId/reactions', requireAuth, async (req, res) => {
                 entityType: 'post',
                 entityId: postId,
                 message: 'reacted to your post'
+            },
+            include: {
+                actor: { select: { id: true, displayName: true } }
             }
         });
+        sendNotification(post.authorId, { type: 'notification', notification });
     }
 
     return res.json(reaction);
@@ -129,7 +134,7 @@ router.post('/:postId/comments', requireAuth, async (req, res) => {
     });
 
     if (post && post.authorId !== req.user.sub) {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 recipientId: post.authorId,
                 actorId: req.user.sub,
@@ -137,8 +142,12 @@ router.post('/:postId/comments', requireAuth, async (req, res) => {
                 entityType: 'post',
                 entityId: postId,
                 message: 'commented on your post'
+            },
+            include: {
+                actor: { select: { id: true, displayName: true } }
             }
         });
+        sendNotification(post.authorId, { type: 'notification', notification });
     }
 
     return res.status(201).json(comment);

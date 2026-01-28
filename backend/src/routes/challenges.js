@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { prisma } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendNotification } from '../utils/notificationsHub.js';
 
 const router = express.Router();
 
@@ -68,7 +69,7 @@ router.post('/:challengeId/join', requireAuth, async (req, res) => {
     });
 
     if (challenge && challenge.creatorId !== req.user.sub) {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 recipientId: challenge.creatorId,
                 actorId: req.user.sub,
@@ -76,8 +77,12 @@ router.post('/:challengeId/join', requireAuth, async (req, res) => {
                 entityType: 'challenge',
                 entityId: challengeId,
                 message: `joined your challenge: ${challenge.title}`
+            },
+            include: {
+                actor: { select: { id: true, displayName: true } }
             }
         });
+        sendNotification(challenge.creatorId, { type: 'notification', notification });
     }
 
     return res.json(participant);
@@ -118,7 +123,7 @@ router.post('/:challengeId/checkins', requireAuth, async (req, res) => {
     });
 
     if (challenge && challenge.creatorId !== req.user.sub) {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 recipientId: challenge.creatorId,
                 actorId: req.user.sub,
@@ -126,8 +131,12 @@ router.post('/:challengeId/checkins', requireAuth, async (req, res) => {
                 entityType: 'challenge',
                 entityId: challengeId,
                 message: `checked in on: ${challenge.title}`
+            },
+            include: {
+                actor: { select: { id: true, displayName: true } }
             }
         });
+        sendNotification(challenge.creatorId, { type: 'notification', notification });
     }
 
     return res.status(201).json(checkin);
