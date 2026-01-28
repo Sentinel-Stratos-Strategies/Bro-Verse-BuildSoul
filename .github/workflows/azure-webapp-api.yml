@@ -23,11 +23,11 @@ jobs:
 
             - name: Install dependencies
               working-directory: backend
-              run: npm ci
+              run: npm ci --omit=dev
 
             - name: Build deploy package
               working-directory: backend
-              run: zip -r ../broverse-api.zip . -x "node_modules/*" ".env"
+              run: zip -r ../broverse-api.zip . -x ".env"
 
             - name: Deploy to Azure Web App
               uses: azure/webapps-deploy@v3
