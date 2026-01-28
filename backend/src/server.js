@@ -8,6 +8,7 @@ import postRoutes from './routes/posts.js';
 import challengeRoutes from './routes/challenges.js';
 import notificationRoutes from './routes/notifications.js';
 import uploadRoutes from './routes/uploads.js';
+import aiProfileRoutes from './routes/ai-profiles.js';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/posts', postRoutes);
 app.use('/challenges', challengeRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/uploads', uploadRoutes);
+app.use('/ai-profiles', aiProfileRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {

@@ -12,6 +12,7 @@
         "prisma:studio": "prisma studio"
     },
     "dependencies": {
+        "@azure/cosmos": "^4.9.0",
         "@azure/storage-blob": "^12.30.0",
         "@opentelemetry/auto-instrumentations-node": "^0.69.0",
         "@opentelemetry/exporter-trace-otlp-http": "^0.211.0",
