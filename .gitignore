@@ -1,1 +1,5 @@
 *.PublishSettings
+
+# Cursor MCP configuration (contains secrets)
+.cursor/mcp.json
+mcp.json

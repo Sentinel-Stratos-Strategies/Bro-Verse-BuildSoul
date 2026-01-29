@@ -27,6 +27,13 @@ npm run dev
 
 The app will be running at **http://localhost:5173** 🚀
 
+## 🤖 Connect GitHub MCP Server to Cursor
+
+Want to use Cursor AI with GitHub integration? Set up the Model Context Protocol (MCP) server:
+
+- **Quick Start:** [3 Simple Steps](docs/MCP_QUICK_START.md) - If you already have a GitHub PAT
+- **Full Guide:** [Complete Setup Instructions](docs/MCP_GITHUB_SETUP.md) - Detailed guide with troubleshooting
+
 ## 📸 Screenshots
 
 ### Homepage
