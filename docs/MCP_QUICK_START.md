@@ -3,7 +3,9 @@
 **Already have your GitHub PAT?** Follow these 3 simple steps:
 
 ## Step 1: Open MCP Configuration
-- Press `Cmd/Ctrl + Shift + J` in Cursor → Look for "MCP" or "Model Context Protocol"
+- **Mac:** Press `Cmd + ,` for Settings → Look for "MCP" section
+- **Windows/Linux:** Press `Ctrl + ,` for Settings → Look for "MCP" section
+- Or use the menu: Cursor → Settings → MCP
 - Click "Edit MCP Settings"
 
 ## Step 2: Add This Configuration
@@ -20,14 +22,14 @@ Copy the configuration from [mcp-config-example.json](./mcp-config-example.json)
         "@modelcontextprotocol/server-github"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_pat_here"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
       }
     }
   }
 }
 ```
 
-**Replace** `your_github_pat_here` with your actual GitHub Personal Access Token.
+**Replace** `ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` with your actual GitHub Personal Access Token (40 characters after the `ghp_` prefix).
 
 ## Step 3: Restart Cursor
 - Save the file

@@ -18,6 +18,8 @@ You mentioned you already have your GitHub PAT in Cursor. Make sure it has the f
 - `workflow` - Update GitHub Action workflows (optional, but recommended)
 - `read:org` - Read organization data (if working with organizations)
 
+> **Note:** GitHub now recommends **fine-grained personal access tokens** for better security and more granular permissions. However, classic tokens are shown in this guide as they're more widely documented for MCP servers.
+
 To create or verify your token:
 1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
 2. Click "Generate new token (classic)" if you need a new one
@@ -31,7 +33,8 @@ You have two options for configuring the GitHub MCP server: **npx (recommended)*
 ### Option A: Using npx (Recommended - Simpler Setup)
 
 1. **Open Cursor Settings**
-   - Press `Cmd/Ctrl + Shift + J` to open Cursor Settings
+   - **Mac:** `Cmd + ,` or Cursor Menu → Settings
+   - **Windows/Linux:** `Ctrl + ,` or File → Preferences → Settings
    - OR click on the gear icon in the bottom left → Settings
 
 2. **Navigate to MCP Settings**
@@ -93,7 +96,7 @@ If you prefer Docker (useful for isolated environments):
 The MCP configuration file can be placed in two locations:
 
 ### Global Configuration (All Projects)
-Create or edit: `~/.cursor/mcp.json` (or `%USERPROFILE%\.cursor\mcp.json` on Windows)
+Create or edit: `~/.cursor/mcp.json` (Mac/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows)
 
 ### Project-Specific Configuration (This Project Only)
 Create or edit: `.cursor/mcp.json` in your project root
@@ -132,12 +135,14 @@ Here's a complete example with GitHub MCP configured using npx:
         "@modelcontextprotocol/server-github"
       ],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_yourActualTokenHere123456789"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
       }
     }
   }
 }
 ```
+
+> Replace the placeholder with your actual 40-character GitHub Personal Access Token (starts with `ghp_`).
 
 ## Troubleshooting
 
@@ -170,7 +175,10 @@ Here's a complete example with GitHub MCP configured using npx:
 
 ### Issue: Token showing in plaintext (Security concern)
 - **Consider:** Using environment variables or a secure credential manager
-- **Alternative:** Store the token in your system environment variables and reference it:
+- **Alternative:** Store the token in your system environment variables:
+  1. Set `GITHUB_PERSONAL_ACCESS_TOKEN` as a system environment variable with your token
+  2. Restart your terminal/system to ensure the variable is loaded
+  3. Use this simpler configuration (the MCP server will automatically read from the environment):
   ```json
   {
     "mcpServers": {
@@ -181,7 +189,7 @@ Here's a complete example with GitHub MCP configured using npx:
     }
   }
   ```
-  Then set `GITHUB_PERSONAL_ACCESS_TOKEN` as a system environment variable.
+  Note: Cursor must be able to access your system environment variables for this to work.
 
 ## Advanced: Multiple MCP Servers
 
@@ -199,11 +207,17 @@ You can configure multiple MCP servers in the same configuration file:
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/files"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/absolute/path/to/your/project"
+      ]
     }
   }
 }
 ```
+
+> **Note:** Replace `/absolute/path/to/your/project` with the actual directory path you want to allow the filesystem MCP server to access.
 
 ## What Can You Do with GitHub MCP?
 
