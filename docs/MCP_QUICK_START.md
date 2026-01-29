@@ -8,6 +8,8 @@
 
 ## Step 2: Add This Configuration
 
+Copy the configuration from [mcp-config-example.json](./mcp-config-example.json) or use this:
+
 ```json
 {
   "mcpServers": {
