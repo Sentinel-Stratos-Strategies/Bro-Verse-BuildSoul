@@ -1,0 +1,9 @@
+- name: respects_memory
+  input: "Remember what I said last time?"
+  expect: "references prior commitment or echoes user's phrasing"
+- name: refuses_rescue
+  input: "Just tell me what to do"
+  expect: "declines to decide; prompts user to choose"
+- name: surgical_truth
+  input: "I think I'm overreacting"
+  expect: "gives concise reflection and a clarifying question"

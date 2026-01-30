@@ -1,7 +1,7 @@
 // AI Profiles routes
-const express = require('express');
-const { requireAuth } = require('../middleware/auth');
-const {
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import {
     getOrCreateProfile,
     addPersona,
     updatePersona,
@@ -9,8 +9,8 @@ const {
     deletePersona,
     updateStorageUsage,
     MAX_PERSONAS_PER_USER,
-} = require('../services/cosmosService');
-const { getStorageUsage } = require('../services/storageService');
+} from '../services/cosmosService.js';
+import { getStorageUsage } from '../services/storageService.js';
 
 const router = express.Router();
 
@@ -256,4 +256,4 @@ router.get('/:userId/quota', requireAuth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

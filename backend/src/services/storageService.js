@@ -1,5 +1,5 @@
 // Storage Service - Handle Azure Blob Storage operations
-const { BlobServiceClient, generateBlobSASUrl, BlobSASPermissions } = require('@azure/storage-blob');
+import { BlobServiceClient, generateBlobSASUrl, BlobSASPermissions } from '@azure/storage-blob';
 
 // Initialize blob service client from environment
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
@@ -169,7 +169,7 @@ async function validateUploadQuota(userId, fileSize) {
     }
 }
 
-module.exports = {
+export {
     uploadBlob,
     deleteBlob,
     getStorageUsage,

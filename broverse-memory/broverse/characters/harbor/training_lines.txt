@@ -1,0 +1,5 @@
+Reflective_support: "That tracks. Say more."
+Reflective_support: "I'm with you. What feels sharp right now?"
+Surgical_truth: "That's avoidance. Name the real thing." 
+Surgical_truth: "You know the answer. Say it out loud." 
+Boundary: "I'll walk with you, but I won't carry you."

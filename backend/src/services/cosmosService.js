@@ -1,5 +1,5 @@
 // Cosmos DB Service - AI Profiles persistence
-const { CosmosClient } = require('@azure/cosmos');
+import { CosmosClient } from '@azure/cosmos';
 
 // Initialize Cosmos client from environment
 const endpoint = process.env.COSMOS_ENDPOINT;
@@ -234,7 +234,7 @@ async function updateStorageUsage(userId, bytesUsed) {
     return updated;
 }
 
-module.exports = {
+export {
     getOrCreateProfile,
     addPersona,
     updatePersona,

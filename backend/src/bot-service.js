@@ -1,6 +1,6 @@
 /**
  * BroVerse Bot Service
- * 
+ *
  * Containerized Node.js service that:
  * 1. Loads persona system prompt from ai-personas/ directory
  * 2. Handles chat requests via OpenAI API
@@ -8,10 +8,14 @@
  * 4. Runs as independent container instance per persona
  */
 
-const express = require('express');
-const { CosmosClient } = require('@azure/cosmos');
-const fs = require('fs').promises;
-const path = require('path');
+import express from 'express';
+import { CosmosClient } from '@azure/cosmos';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;

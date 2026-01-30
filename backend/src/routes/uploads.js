@@ -1,8 +1,8 @@
 // Upload routes for posts
-const express = require('express');
-const multer = require('multer');
-const { requireAuth } = require('../middleware/auth');
-const { uploadBlob, validateUploadQuota, getStorageUsage } = require('../services/storageService');
+import express from 'express';
+import multer from 'multer';
+import { requireAuth } from '../middleware/auth.js';
+import { uploadBlob, validateUploadQuota, getStorageUsage } from '../services/storageService.js';
 
 const router = express.Router();
 
@@ -166,4 +166,4 @@ router.get('/quota', requireAuth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
