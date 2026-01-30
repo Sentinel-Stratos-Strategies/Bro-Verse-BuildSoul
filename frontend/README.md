@@ -84,3 +84,4 @@ Output directory: `dist/`
 - The app uses rolldown-vite for faster build times
 - Application Insights integration is optional but recommended for production monitoring
 - All routes are handled client-side with React Router
+- Deployment: main branch pushes to Azure Static Web Apps (frontend) and Azure Web App (API)
