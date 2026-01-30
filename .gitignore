@@ -1,2 +1,12 @@
 *.PublishSettings
 /settings.json
+
+# Cursor MCP configuration (contains secrets)
+.cursor/mcp.json
+
+# Build artifacts
+broverse-api.zip
+
+# BroVerse memory data (local persistence)
+broverse-memory/data/
+broverse-memory/.env
