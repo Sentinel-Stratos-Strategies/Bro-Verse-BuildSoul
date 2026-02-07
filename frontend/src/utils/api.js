@@ -20,10 +20,48 @@ export function setAuthTokens(tokens) {
 
 export function clearAuthTokens() {
     localStorage.removeItem('broverse_tokens');
+    localStorage.removeItem('broverse_user');
+    window.dispatchEvent(new CustomEvent('broverse:auth:expired'));
+}
+
+// Track refresh in progress to avoid multiple simultaneous refreshes
+let refreshPromise = null;
+
+async function refreshAccessToken() {
+    if (refreshPromise) return refreshPromise;
+
+    refreshPromise = (async () => {
+        try {
+            const tokens = getAuthTokens();
+            if (!tokens?.refreshToken) throw new Error('No refresh token');
+
+            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken: tokens.refreshToken })
+            });
+
+            if (!response.ok) throw new Error('Refresh failed');
+
+            const data = await response.json();
+            setAuthTokens({
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken
+            });
+            return data.accessToken;
+        } catch {
+            clearAuthTokens();
+            return null;
+        } finally {
+            refreshPromise = null;
+        }
+    })();
+
+    return refreshPromise;
 }
 
 export async function apiRequest(path, options = {}) {
-    const { method = 'GET', body, auth = true } = options;
+    const { method = 'GET', body, auth = true, raw = false } = options;
     const headers = {
         'Content-Type': 'application/json'
     };
@@ -35,11 +73,24 @@ export async function apiRequest(path, options = {}) {
         }
     }
 
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    let response = await fetch(`${API_BASE_URL}${path}`, {
         method,
         headers,
         body: body ? JSON.stringify(body) : undefined
     });
+
+    // Auto-refresh on 401 and retry once
+    if (response.status === 401 && auth) {
+        const newAccessToken = await refreshAccessToken();
+        if (newAccessToken) {
+            headers.Authorization = `Bearer ${newAccessToken}`;
+            response = await fetch(`${API_BASE_URL}${path}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : undefined
+            });
+        }
+    }
 
     if (!response.ok) {
         let message = 'Request failed';
@@ -58,8 +109,6 @@ export async function apiRequest(path, options = {}) {
 
         if (response.status === 401 && auth) {
             clearAuthTokens();
-            localStorage.removeItem('broverse_user');
-            window.dispatchEvent(new CustomEvent('broverse:auth:expired'));
         }
 
         const error = new Error(message);
@@ -67,6 +116,32 @@ export async function apiRequest(path, options = {}) {
         throw error;
     }
 
+    if (raw) return response;
     if (response.status === 204) return null;
     return response.json();
+}
+
+/**
+ * Stream an SSE response from a POST endpoint.
+ * Returns an async generator yielding parsed SSE data objects.
+ */
+export async function apiStream(path, body) {
+    const tokens = getAuthTokens();
+    const headers = { 'Content-Type': 'application/json' };
+    if (tokens?.accessToken) {
+        headers.Authorization = `Bearer ${tokens.accessToken}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || 'Stream request failed');
+    }
+
+    return response.body;
 }

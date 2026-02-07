@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import { HomePage, DashboardPage, BoardPage } from './pages'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { HomePage, DashboardPage, BoardPage, ChatPage } from './pages'
 import { UserProfile } from './components/UserProfile'
 import './App.css'
 
@@ -9,6 +10,7 @@ import './App.css'
  */
 function AppContent() {
   const navigate = useNavigate()
+  const { isAuthenticated, user, logout } = useAuth()
 
   const handleNavigate = (page) => {
     switch (page) {
@@ -24,6 +26,9 @@ function AppContent() {
       case 'board':
         navigate('/board')
         break
+      case 'chat':
+        navigate('/chat')
+        break
       default:
         navigate('/')
     }
@@ -38,8 +43,14 @@ function AppContent() {
         <div className="nav-links">
           <button onClick={() => navigate('/')}>Home</button>
           <button onClick={() => navigate('/dashboard')}>Dashboard</button>
+          {isAuthenticated && <button onClick={() => navigate('/chat')}>Chat</button>}
           <button onClick={() => navigate('/board')}>Board</button>
-          <button onClick={() => navigate('/profile')}>Profile</button>
+          <button onClick={() => navigate('/profile')}>
+            {isAuthenticated ? user?.displayName || 'Profile' : 'Login'}
+          </button>
+          {isAuthenticated && (
+            <button className="logout-btn" onClick={logout}>Logout</button>
+          )}
         </div>
       </nav>
 
@@ -48,6 +59,8 @@ function AppContent() {
           <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
           <Route path="/dashboard" element={<DashboardPage onNavigate={handleNavigate} />} />
           <Route path="/board" element={<BoardPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat/:threadId" element={<ChatPage />} />
           <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </main>
@@ -62,7 +75,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   )
 }

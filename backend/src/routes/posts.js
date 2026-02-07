@@ -5,6 +5,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { sendNotification } from '../utils/notificationsHub.js';
 import multer from 'multer';
 import { uploadBlob, validateUploadQuota, getStorageUsage } from '../services/storageService.js';
+import { sanitizeString } from '../utils/sanitize.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -56,7 +58,7 @@ router.post('/', requireAuth, async (req, res) => {
     const post = await prisma.post.create({
         data: {
             authorId: req.user.sub,
-            content: parsed.data.content,
+            content: sanitizeString(parsed.data.content),
             visibility: parsed.data.visibility || 'public',
             type: parsed.data.type || 'reflection'
         }
@@ -65,9 +67,16 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(201).json(post);
 });
 
-router.post('/:postId/reactions', requireAuth, async (req, res) => {
+router.post('/:postId/reactions', requireAuth, async (req, res, next) => {
+    try {
     const { postId } = req.params;
     const { type = 'like' } = req.body;
+
+    // Validate post exists before creating reaction
+    const postExists = await prisma.post.findUnique({ where: { id: postId }, select: { id: true } });
+    if (!postExists) {
+        return res.status(404).json({ error: 'Post not found' });
+    }
 
     const existing = await prisma.reaction.findUnique({
         where: {
@@ -123,20 +132,30 @@ router.post('/:postId/reactions', requireAuth, async (req, res) => {
     }
 
     return res.json(reaction);
+    } catch (err) {
+        next(err);
+    }
 });
 
-router.post('/:postId/comments', requireAuth, async (req, res) => {
+router.post('/:postId/comments', requireAuth, async (req, res, next) => {
+    try {
     const { postId } = req.params;
     const { content, parentId } = req.body;
     if (!content) {
         return res.status(400).json({ error: 'Content required' });
     }
 
+    // Validate post exists before creating comment
+    const postExists = await prisma.post.findUnique({ where: { id: postId }, select: { id: true } });
+    if (!postExists) {
+        return res.status(404).json({ error: 'Post not found' });
+    }
+
     const comment = await prisma.comment.create({
         data: {
             postId,
             authorId: req.user.sub,
-            content,
+            content: sanitizeString(content),
             parentId: parentId || null
         },
         include: {
@@ -167,6 +186,9 @@ router.post('/:postId/comments', requireAuth, async (req, res) => {
     }
 
     return res.status(201).json(comment);
+    } catch (err) {
+        next(err);
+    }
 });
 
 /**
@@ -243,8 +265,10 @@ router.post('/:postId/upload', requireAuth, upload.single('media'), async (req, 
             }
         });
     } catch (error) {
-        console.error('Post upload error:', error);
+        logger.error('Post upload error', { error: error.message, stack: error.stack, postId: req.params.postId });
         res.status(500).json({ error: error.message });
     }
 });
+
+export default router;
 

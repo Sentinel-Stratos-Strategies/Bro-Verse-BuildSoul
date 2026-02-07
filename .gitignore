@@ -1,5 +1,6 @@
 *.PublishSettings
 /settings.json
+.DS_Store
 
 # Cursor MCP configuration (contains secrets)
 .cursor/mcp.json

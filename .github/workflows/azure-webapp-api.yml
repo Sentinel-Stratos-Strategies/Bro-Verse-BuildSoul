@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -25,9 +25,19 @@ jobs:
         working-directory: backend
         run: npm ci --omit=dev
 
+      - name: Generate Prisma Client
+        working-directory: backend
+        run: npx prisma generate
+
       - name: Build deploy package
         working-directory: backend
-        run: zip -r ../broverse-api.zip . -x "node_modules/*" ".env*" ".git*" "dist/*" ".prisma/*"
+        run: |
+          zip -r ../broverse-api.zip . \
+            -x ".env*" \
+            -x ".git*" \
+            -x "tests/*" \
+            -x "logs/*" \
+            -x ".prisma/*"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3

@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -38,7 +38,8 @@ jobs:
           api_location: ""
           skip_app_build: false
         env:
-          NODE_VERSION: 20.20.0
+          NODE_VERSION: 20
+          VITE_API_BASE_URL: https://broverse-api-20260127.azurewebsites.net
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
