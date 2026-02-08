@@ -2,11 +2,12 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import logger from '../utils/logger.js';
+import { getPersonaModelConfig } from '../config/constants.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const PERSONAS_DIR = join(__dirname, '../../ai-personas');
 
-/** In-memory cache: slug → { slug, name, systemPrompt } */
+/** In-memory cache: slug → { slug, name, systemPrompt, modelConfig } */
 const personaCache = new Map();
 
 /**
@@ -31,11 +32,18 @@ async function loadPersonas() {
             txtFiles.map(async (file) => {
                 const slug = basename(file, '.txt');
                 const systemPrompt = (await readFile(join(PERSONAS_DIR, file), 'utf-8')).trim();
-                personaCache.set(slug, { slug, name: slugToName(slug), systemPrompt });
+                const modelConfig = getPersonaModelConfig(slug);
+                personaCache.set(slug, { slug, name: slugToName(slug), systemPrompt, modelConfig });
             })
         );
 
-        logger.info(`Loaded ${personaCache.size} personas`);
+        logger.info(`Loaded ${personaCache.size} personas`, {
+            personas: [...personaCache.values()].map(p => ({
+                slug: p.slug,
+                provider: p.modelConfig.provider,
+                model: p.modelConfig.model
+            }))
+        });
     } catch (err) {
         logger.error('Failed to load personas', { error: err.message });
     }
@@ -51,7 +59,12 @@ export function getPersona(slug) {
 
 /** Get all personas (without full system prompts — for listing). */
 export function getAllPersonas() {
-    return [...personaCache.values()].map(({ slug, name }) => ({ slug, name }));
+    return [...personaCache.values()].map(({ slug, name, modelConfig }) => ({
+        slug,
+        name,
+        provider: modelConfig.provider,
+        model: modelConfig.model
+    }));
 }
 
 /** Check if a slug exists. */

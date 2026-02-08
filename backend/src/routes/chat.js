@@ -126,8 +126,8 @@ router.post('/threads/:threadId/messages', async (req, res, next) => {
             content: m.content
         }));
 
-        // Call AI
-        const aiResponse = await chat(persona.systemPrompt, history);
+        // Call AI (routed to persona-specific model)
+        const aiResponse = await chat(persona.systemPrompt, history, persona.modelConfig);
 
         // Save assistant message
         const assistantMsg = await prisma.aiMessage.create({
@@ -195,8 +195,8 @@ router.post('/threads/:threadId/messages/stream', async (req, res, next) => {
             content: m.content
         }));
 
-        // Stream AI response via SSE
-        const aiResponse = await streamChat(persona.systemPrompt, history, res);
+        // Stream AI response via SSE (routed to persona-specific model)
+        const aiResponse = await streamChat(persona.systemPrompt, history, res, persona.modelConfig);
 
         // Save assistant message after stream completes
         await prisma.aiMessage.create({
@@ -267,7 +267,12 @@ router.get('/personas/:slug', (req, res) => {
         return res.status(404).json({ error: 'Persona not found' });
     }
     // Return metadata only (not the full system prompt)
-    res.json({ slug: persona.slug, name: persona.name });
+    res.json({
+        slug: persona.slug,
+        name: persona.name,
+        provider: persona.modelConfig?.provider,
+        model: persona.modelConfig?.model
+    });
 });
 
 export default router;
