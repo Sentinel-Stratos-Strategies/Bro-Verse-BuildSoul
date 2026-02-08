@@ -180,24 +180,45 @@
   box-shadow: 0 8px 24px rgba(233, 69, 96, 0.4);
 }
 
-/* Chat Modal */
-.chat-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
+/* Quick Actions */
+.quick-actions {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
   padding: 24px;
+  grid-column: 1 / -1;
 }
 
-.chat-modal > * {
-  width: 100%;
-  max-width: 600px;
-  height: 80vh;
-  max-height: 700px;
+.quick-actions h2 {
+  color: #fff;
+  margin: 0 0 16px 0;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #2a2a4e;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.action-card:hover {
+  border-color: #c9a227;
+  transform: translateY(-2px);
+}
+
+.action-icon {
+  font-size: 24px;
 }

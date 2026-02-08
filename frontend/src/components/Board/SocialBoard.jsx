@@ -146,7 +146,8 @@ export function SocialBoard() {
         setAuthNotice('');
         try {
             const data = await apiRequest('/posts');
-            const normalized = data.map((post) => ({
+            const feedPosts = Array.isArray(data) ? data : (data.posts || []);
+            const normalized = feedPosts.map((post) => ({
                 id: post.id,
                 authorId: post.authorId,
                 authorName: post.author?.displayName || 'Brother',
