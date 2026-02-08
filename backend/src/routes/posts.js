@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 import { sendNotification } from '../utils/notificationsHub.js';
+import { getRankedFeed } from '../services/feedService.js';
 import multer from 'multer';
 import { uploadBlob, validateUploadQuota, getStorageUsage } from '../services/storageService.js';
 import { sanitizeString } from '../utils/sanitize.js';
@@ -31,22 +32,32 @@ const postSchema = z.object({
 });
 
 router.get('/', requireAuth, async (req, res) => {
-    const posts = await prisma.post.findMany({
-        where: { isDeleted: false },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-        include: {
-            author: { select: { id: true, displayName: true } },
-            comments: {
-                include: {
-                    author: { select: { id: true, displayName: true } }
-                }
-            },
-            reactions: true
-        }
-    });
-
-    return res.json(posts);
+    try {
+        const { cursor, limit } = req.query;
+        const feed = await getRankedFeed(req.user.sub, {
+            cursor: cursor || undefined,
+            limit: limit ? Math.min(parseInt(limit), 50) : 20
+        });
+        return res.json(feed);
+    } catch (error) {
+        logger.error('Feed error', { error: error.message });
+        // Fallback to simple chronological feed
+        const posts = await prisma.post.findMany({
+            where: { isDeleted: false },
+            orderBy: { createdAt: 'desc' },
+            take: 50,
+            include: {
+                author: { select: { id: true, displayName: true } },
+                comments: {
+                    include: {
+                        author: { select: { id: true, displayName: true } }
+                    }
+                },
+                reactions: true
+            }
+        });
+        return res.json({ posts, nextCursor: null, hasMore: false });
+    }
 });
 
 router.post('/', requireAuth, async (req, res) => {

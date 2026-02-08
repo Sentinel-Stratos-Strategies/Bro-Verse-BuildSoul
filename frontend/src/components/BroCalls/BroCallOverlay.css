@@ -1,0 +1,27 @@
+.bro-call-overlay { position: fixed; top: 24px; right: 24px; z-index: 10001; transition: all 0.3s ease; }
+.bro-call-overlay.visible { opacity: 1; transform: translateY(0); }
+.bro-call-overlay.hidden { opacity: 0; transform: translateY(-20px); pointer-events: none; }
+
+.bro-call-card { background: #111; border: 2px solid #c9a227; border-radius: 16px; padding: 20px; width: 320px; box-shadow: 0 8px 32px rgba(201, 162, 39, 0.2); animation: pulse-glow 2s ease-in-out infinite; }
+
+.bro-call-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.bro-call-badge { background: #c9a227; color: #000; font-size: 10px; font-weight: 800; letter-spacing: 2px; padding: 4px 10px; border-radius: 4px; }
+.bro-call-dismiss { background: none; border: none; color: #555; font-size: 20px; cursor: pointer; padding: 0; }
+.bro-call-dismiss:hover { color: #888; }
+
+.bro-call-persona { color: #c9a227; font-weight: 700; font-size: 16px; text-transform: capitalize; margin-bottom: 8px; }
+.bro-call-message { color: #ccc; font-size: 14px; line-height: 1.5; margin-bottom: 16px; }
+
+.bro-call-actions { display: flex; justify-content: center; }
+.bro-call-answer { background: #c9a227; color: #000; border: none; padding: 10px 28px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.15s; }
+.bro-call-answer:hover { transform: scale(1.05); }
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 8px 32px rgba(201, 162, 39, 0.2); }
+    50% { box-shadow: 0 8px 32px rgba(201, 162, 39, 0.4); }
+}
+
+@media (max-width: 640px) {
+    .bro-call-overlay { top: 12px; right: 12px; left: 12px; }
+    .bro-call-card { width: auto; }
+}

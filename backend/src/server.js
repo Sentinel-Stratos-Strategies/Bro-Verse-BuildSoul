@@ -1,4 +1,5 @@
 import './tracing.js';
+import { createServer } from 'node:http';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -7,6 +8,10 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import logger from './utils/logger.js';
 import { RATE_LIMITS } from './config/constants.js';
+import { attachWebSocket } from './services/websocketService.js';
+import { startBroCallScheduler } from './jobs/broCallScheduler.js';
+
+// ── Route Imports ───────────────────────────────────────────────────
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import challengeRoutes from './routes/challenges.js';
@@ -15,6 +20,11 @@ import uploadRoutes from './routes/uploads.js';
 import aiProfileRoutes from './routes/ai-profiles.js';
 import chatRoutes from './routes/chat.js';
 import rosterRoutes from './routes/roster.js';
+import dmRoutes from './routes/dm.js';
+import relationshipRoutes from './routes/relationships.js';
+import userRoutes from './routes/users.js';
+import broCallRoutes from './routes/brocalls.js';
+import badgeRoutes from './routes/badges.js';
 
 dotenv.config();
 
@@ -58,6 +68,11 @@ app.use('/uploads', uploadRoutes);
 app.use('/ai-profiles', aiProfileRoutes);
 app.use('/chat', chatRoutes);
 app.use('/roster', rosterRoutes);
+app.use('/dm', dmRoutes);
+app.use('/relationships', relationshipRoutes);
+app.use('/users', userRoutes);
+app.use('/brocalls', broCallRoutes);
+app.use('/badges', badgeRoutes);
 
 // ── Centralized Error Handler ────────────────────────────────────────
 app.use((err, req, res, _next) => {
@@ -78,8 +93,16 @@ app.use((err, req, res, _next) => {
     res.status(statusCode).json({ error: message });
 });
 
-// ── Start Server ─────────────────────────────────────────────────────
+// ── Start Server with WebSocket ──────────────────────────────────────
 const port = process.env.PORT || 4000;
-app.listen(port, () => {
-    logger.info(`BroVerse API listening on ${port}`);
+const httpServer = createServer(app);
+
+// Attach WebSocket server to the HTTP server
+attachWebSocket(httpServer);
+
+// Start Bro Call scheduler (cron jobs)
+startBroCallScheduler();
+
+httpServer.listen(port, () => {
+    logger.info(`BroVerse API listening on ${port} (HTTP + WebSocket)`);
 });

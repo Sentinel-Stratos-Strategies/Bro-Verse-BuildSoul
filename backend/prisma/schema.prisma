@@ -35,6 +35,12 @@ model User {
   refreshTokens          RefreshToken[]
   aiThreads              AiThread[]
   rosters                UserRoster[]
+  emailVerifications     EmailVerification[]
+  passwordResets         PasswordReset[]
+  sentMessages           DirectMessage[]        @relation("dmSender")
+  receivedMessages       DirectMessage[]        @relation("dmReceiver")
+  broCalls               BroCall[]
+  badges                 UserBadge[]
 }
 
 model Relationship {
@@ -229,4 +235,90 @@ model UserRoster {
 
   @@index([userId])
   @@index([isActive])
+}
+
+model EmailVerification {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+}
+
+model PasswordReset {
+  id        String    @id @default(uuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+}
+
+model DirectMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("dmSender", fields: [senderId], references: [id])
+  receiver User @relation("dmReceiver", fields: [receiverId], references: [id])
+
+  @@index([senderId, receiverId, createdAt])
+  @@index([receiverId, isRead])
+}
+
+model BroCall {
+  id          String    @id @default(uuid())
+  userId      String
+  personaSlug String
+  message     String
+  mediaUrl    String?
+  mediaType   String?
+  scheduledAt DateTime
+  deliveredAt DateTime?
+  status      String    @default("scheduled")
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, scheduledAt])
+  @@index([status])
+}
+
+model Badge {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  iconUrl     String?
+  category    String   @default("general")
+  criteria    Json?
+  createdAt   DateTime @default(now())
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(uuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  badge Badge @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+  @@index([userId])
 }

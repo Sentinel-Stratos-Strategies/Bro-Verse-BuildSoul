@@ -1,7 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { HomePage, DashboardPage, BoardPage, ChatPage } from './pages'
+import { ErrorBoundary } from './components/shared/ErrorBoundary'
+import { ToastProvider } from './components/shared/Toast'
+import { HomePage, DashboardPage, BoardPage, ChatPage, MessagesPage, FriendsPage, LandingPage, OnboardingPage, ForgotPasswordPage, ResetPasswordPage, VerifyEmailPage } from './pages'
 import { UserProfile } from './components/UserProfile'
+import { BroCallOverlay } from './components/BroCalls/BroCallOverlay'
 import './App.css'
 
 /**
@@ -29,6 +32,12 @@ function AppContent() {
       case 'chat':
         navigate('/chat')
         break
+      case 'messages':
+        navigate('/messages')
+        break
+      case 'friends':
+        navigate('/friends')
+        break
       default:
         navigate('/')
     }
@@ -42,8 +51,10 @@ function AppContent() {
         </div>
         <div className="nav-links">
           <button onClick={() => navigate('/')}>Home</button>
-          <button onClick={() => navigate('/dashboard')}>Dashboard</button>
+          {isAuthenticated && <button onClick={() => navigate('/dashboard')}>Dashboard</button>}
           {isAuthenticated && <button onClick={() => navigate('/chat')}>Chat</button>}
+          {isAuthenticated && <button onClick={() => navigate('/messages')}>Messages</button>}
+          {isAuthenticated && <button onClick={() => navigate('/friends')}>Friends</button>}
           <button onClick={() => navigate('/board')}>Board</button>
           <button onClick={() => navigate('/profile')}>
             {isAuthenticated ? user?.displayName || 'Profile' : 'Login'}
@@ -56,14 +67,22 @@ function AppContent() {
 
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
+          <Route path="/" element={isAuthenticated ? <DashboardPage onNavigate={handleNavigate} /> : <LandingPage />} />
           <Route path="/dashboard" element={<DashboardPage onNavigate={handleNavigate} />} />
           <Route path="/board" element={<BoardPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:threadId" element={<ChatPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
         </Routes>
       </main>
+
+      {isAuthenticated && <BroCallOverlay />}
 
       <footer className="app-footer">
         <p>The BroVerse • Built by The Sentinel • Sacred Construction</p>
@@ -74,11 +93,15 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   )
 }
 

@@ -1,0 +1,33 @@
+.landing-page { color: #e0e0e0; }
+
+/* Hero */
+.hero { text-align: center; padding: 80px 24px 60px; max-width: 700px; margin: 0 auto; }
+.hero-badge { display: inline-block; background: #c9a227; color: #000; font-size: 11px; font-weight: 800; letter-spacing: 3px; padding: 6px 16px; border-radius: 4px; margin-bottom: 24px; }
+.hero h1 { font-size: 48px; font-weight: 800; line-height: 1.15; margin: 0 0 20px; color: #e0e0e0; }
+.hero h1 .gold { color: #c9a227; }
+.hero-sub { font-size: 18px; color: #888; line-height: 1.6; max-width: 520px; margin: 0 auto 36px; }
+.hero-actions { display: flex; gap: 16px; justify-content: center; }
+.cta-primary { background: #c9a227; color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.15s; }
+.cta-primary:hover { transform: scale(1.03); }
+.cta-secondary { background: none; border: 1px solid #444; color: #e0e0e0; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+.cta-secondary:hover { border-color: #c9a227; color: #c9a227; }
+
+/* Features */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; padding: 40px 24px 60px; max-width: 1000px; margin: 0 auto; }
+.feature-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 28px; text-align: center; }
+.feature-icon { font-size: 36px; margin-bottom: 12px; }
+.feature-card h3 { color: #c9a227; font-size: 18px; margin: 0 0 8px; }
+.feature-card p { color: #888; font-size: 14px; line-height: 1.6; margin: 0; }
+
+/* CTA Bottom */
+.cta-bottom { text-align: center; padding: 60px 24px 80px; border-top: 1px solid #222; }
+.cta-bottom h2 { color: #e0e0e0; font-size: 32px; margin: 0 0 12px; }
+.cta-bottom p { color: #888; font-size: 16px; margin: 0 0 32px; }
+
+/* Mobile */
+@media (max-width: 640px) {
+    .hero h1 { font-size: 32px; }
+    .hero-sub { font-size: 15px; }
+    .hero-actions { flex-direction: column; align-items: center; }
+    .features { grid-template-columns: 1fr; padding: 24px 16px; }
+}
