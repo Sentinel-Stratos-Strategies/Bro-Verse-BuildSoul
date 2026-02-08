@@ -34,7 +34,10 @@ const app = express();
 app.use(helmet());
 
 // ── CORS ─────────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : ['http://localhost:5173'];
+app.use(cors({ origin: corsOrigins, credentials: true }));
 
 // ── Body Parsing ─────────────────────────────────────────────────────
 app.use(express.json());
