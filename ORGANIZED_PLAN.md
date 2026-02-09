@@ -45,9 +45,9 @@
 **Backend:** Express API, Prisma + PostgreSQL, `/uploads`, `/ai-profiles`, `/posts`, `/auth`, `/challenges`, `/notifications`. Media fields on `Post`.  
 **Frontend:** React + Vite, Board, BroCalls, CharacterChat, UserProfile, etc.  
 **Workflows:**  
-- `azure-static-web-apps-proud-flower-03eff4810.yml` — Canonical SWA deploy (Azure-generated; modified locally).  
+- `azure-static-web-apps-proud-flower-03eff4810.yml` — Canonical SWA deploy (Azure-generated; matches remote).  
 - `azure-webapp-api.yml` — API deploy on `backend/**`.  
-- ~~`azure-static-web-apps-broverse.yml`~~ — Removed (O2) to avoid duplicate SWA workflow.
+- ~~`azure-static-web-apps-broverse.yml`~~ — Removed in O2; file deleted, no longer on disk.
 
 ### 1.2 Related Folders
 
@@ -60,10 +60,12 @@
 
 ### 1.3 Git State (main repo)
 
+*Reflects state after O1–O3. `azure-static-web-apps-broverse.yml` was removed in O2 and no longer exists on disk.*
+
 - **Remotes:** `origin` (GitHub), `azure` (Azure DevOps).
 - **Uncommitted:**
-  - Modified: `.github/workflows/azure-static-web-apps-proud-flower-03eff4810.yml`
-  - Untracked: `.github/extensions.json`, `.github/workflows/azure-static-web-apps-broverse.yml`, `settings.json` (root).
+  - Modified: none (workflow reverted to match remote).
+  - Untracked: `.github/extensions.json` only. `settings.json` (root) is gitignored.
 - **Fetch:** `git fetch origin` failed with “Permission denied (publickey)” — SSH key not available in environment used for fetch.
 
 ---
@@ -75,10 +77,10 @@
 - **`EXECUTION_STATUS.md`** — Heavy duplication, garbled fragments (“Fe**Fe**Fe…”, “Phase 4.2#### Phase 4.2…”, repeated blocks). Unusable as-is.
 - **`MILESTONE_4_PHASE_PROGRESS.md`** — Similar corruption (repeated “#### Phase…”, “### Next Steps…”, “``````V d`” etc.). Unusable as-is.
 
-### 2.2 Workflow disarray
+### 2.2 Workflow disarray (resolved in O2)
 
-- **Two SWA workflows:** `proud-flower` (Azure-generated, updated) and `broverse` (custom, untracked). `broverse` reuses the same workflow `name` as `proud-flower`, which is confusing and can cause duplicate/conflicting runs.
-- **Unclear canonical:** Azure SWA typically uses the `-proud-flower-` workflow. The “broverse” file adds path filters and a “close PR” job but hasn’t been integrated clearly.
+- **Before O2:** Two SWA workflows existed — `proud-flower` (Azure-generated) and `broverse` (custom, untracked). `broverse` reused the same workflow `name` as `proud-flower`, which could cause duplicate/conflicting runs.
+- **After O2:** `azure-static-web-apps-broverse.yml` was **deleted**; it no longer exists on disk. Only `azure-static-web-apps-proud-flower-03eff4810.yml` remains as the canonical SWA workflow.
 
 ### 2.3 Other
 
